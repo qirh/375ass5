@@ -1,0 +1,46 @@
+2,3c2,3
+<                 (progn (progn (:= i 0)
+<                               (label 2)
+---
+>                 (progn (:= i 0)
+>                        (label 1)
+5,10c5,8
+<                                   (progn (progn (:= x (* 6.250000e-02
+<                                                          i))
+<                                                 (:= y (* (funcall exp
+<                                                                   (- x))
+<                                                          (funcall sin
+<                                                                   (* 6.283180e+00
+---
+>                            (progn (:= x (* 6.250000e-02
+>                                            (float i)))
+>                                   (:= y (* (funcall exp (- x))
+>                                            (funcall sin (* 6.283180e+00
+12,13c10
+<                                                 (:= n (+ (funcall round
+<                                                                   (* 32
+---
+>                                   (:= n (fix (+ (funcall round (* 3.200000e+01
+15c12
+<                                                          34))
+---
+>                                                 3.400000e+01)))
+17,20c14,16
+<                                                        (funcall write
+<                                                                 ' ')
+<                                                        (if (= n
+<                                                               0)
+---
+>                                          (funcall write ' ')
+>                                          (:= n (- n 1))
+>                                          (if (= n 0)
+23c19
+<                                                 (funcall writeln '*'))
+---
+>                                   (funcall writeln '*')
+25c21,22
+<                                          (goto 2))))))
+---
+>                                   (goto 1)))))
+>                                   
+\ No newline at end of file

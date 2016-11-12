@@ -176,7 +176,6 @@ TOKEN makeprogn(TOKEN tok, TOKEN statements)
      return tok;
    }
 
-
 int wordaddress(int n, int wordsize)
   { return ((n + wordsize - 1) / wordsize) * wordsize; }
  

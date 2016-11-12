@@ -247,14 +247,14 @@ TOKEN findid(TOKEN tok){
     if (typ->kind == BASICTYPE || typ->kind == POINTERSYM)
       tok->datatype = typ->basicdt;
   }
-  else{ //sym->kind == CONSTSYM
+  else { //sym->kind == CONSTSYM
     tok->tokentype = NUMBERTOK;
 
     if(sym->basicdt ==0){           //INTEGER
       tok->datatype = INTEGER;
       tok->intval = sym->constval.intnum;
     }
-    else if(sym->basicdt == 1){     //REAL
+    else if (sym->basicdt == 1) {     //REAL
       tok->datatype = REAL;
       tok->realval = sym->constval.realnum;
     }
@@ -275,7 +275,7 @@ void instvars(TOKEN id_list, TOKEN typetok) {
 
   int align = 0;
   //4 is alignment requirement, 16 is padding
-  if(typesym->size > 4)
+  if (typesym->size > 4)
     align = 16;
   else
     align = alignsize(typesym);
@@ -297,12 +297,9 @@ void  instconst(TOKEN idtok, TOKEN consttok) {
   printdeubg("instconst()\n");
 
   SYMBOL sym, typesym;
-  //typesym = consttok->symtype;
   
   sym = insertsym(idtok->stringval);
   sym->kind = CONSTSYM;
-
-  //strncpy(sym->constval.stringconst, idtok->stringval, 16);
 
   sym->basicdt = consttok->datatype;
 
@@ -312,7 +309,7 @@ void  instconst(TOKEN idtok, TOKEN consttok) {
     sym->constval.intnum = consttok-> intval;
   }
   //REAL
-  else if(sym->basicdt == 1){  
+  else if (sym->basicdt == 1){  
     sym->size = 8;
     sym->constval.realnum = consttok-> realval;
   }
@@ -351,6 +348,7 @@ TOKEN makeprogn(TOKEN tok, TOKEN statements) {
     printdeubg("makeprogn\n");
     dbugprinttok(tok);
     dbugprinttok(statements);
+    ppexpr(tok);
   };
   printdeubg("makeprogn() ends\n");
   return tok;
@@ -408,14 +406,19 @@ TOKEN makeprogram(TOKEN name, TOKEN args, TOKEN statements) {
   }
   else
     printf("\n");
+
   TOKEN program = talloc();
   TOKEN tmpArgs = talloc();
   program->tokentype = OPERATOR;
   program->whichval = PROGRAMOP;
   program->operands = name;
   
-  tmpArgs = makeprogn(tmpArgs, args);
+  tmpArgs->tokentype = OPERATOR;
+  tmpArgs->whichval = PROGNOP;
   name->link = tmpArgs;
+
+  //tmpArgs = makeprogn(tmpArgs, args);
+  tmpArgs->operands = args;
   tmpArgs->link = statements;
   
   printdeubg("makeprogram() ends\n");
@@ -507,8 +510,9 @@ TOKEN makefor(int sign, TOKEN tok, TOKEN asg, TOKEN tokb, TOKEN endexpr, TOKEN t
     dbugprinttok(endexpr);
     dbugprinttok(tokc);
     dbugprinttok(statement);
+    ppexpr(tok);
   };
-  ppexpr(tok); 
+   
   printdeubg("makefor() ends\n");
   return tok;
 
@@ -528,16 +532,16 @@ TOKEN makerepeat(TOKEN tok, TOKEN statements, TOKEN tokxzczxv, TOKEN expr) {
   TOKEN tok3 = talloc();    //int
   tok3->tokentype = NUMBERTOK;
   tok3->datatype = INTEGER;
-  int lbl = labelnumber;
-  labelnumber += 1;
+  int lbl = labelnumber++;
   tok3->intval = lbl;
   
   tok1->operands = tok2;
   tok2->operands = tok3;
   tok2->link= statements; 
-  
-  printdeubg("this is what tok1 looks like after making the correction: \n");
-  ppexpr(tok1);
+  if (DEBUG) {
+    printdeubg("this is what tok1 looks like after making the correction: \n");
+    ppexpr(tok1);
+  }
   
   TOKEN tok4 = talloc();
   tok4->tokentype = OPERATOR;
@@ -557,11 +561,11 @@ TOKEN makerepeat(TOKEN tok, TOKEN statements, TOKEN tokxzczxv, TOKEN expr) {
   tok5->link = tok6;
   
 
-  TOKEN tokr = talloc();
-  tokr->tokentype = NUMBERTOK;
-  tokr->datatype = INTEGER;
-  tokr->intval = lbl;
-  tok6->operands = tokr;
+  TOKEN tok7 = talloc();
+  tok7->tokentype = NUMBERTOK;
+  tok7->datatype = INTEGER;
+  tok7->intval = lbl;
+  tok6->operands = tok7;
 
   if(DEBUG){
     printdeubg("tok1 is: \n");
@@ -595,7 +599,7 @@ TOKEN findtype(TOKEN tok) {
 }
 
 void printdeubg (char arr[]) {
-  /*
+  
   char array[sizeof(arr) + 1];
   int i;
   for (i=0; i < sizeof(arr); i++)
@@ -604,7 +608,7 @@ void printdeubg (char arr[]) {
 
   if (DEBUG)
     printf("%s", arr);
-  */
+  
 }
 int wordaddress(int n, int wordsize) {
   return ((n + wordsize - 1) / wordsize) * wordsize;

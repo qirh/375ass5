@@ -2166,14 +2166,14 @@ TOKEN findid(TOKEN tok){
     if (typ->kind == BASICTYPE || typ->kind == POINTERSYM)
       tok->datatype = typ->basicdt;
   }
-  else{ //sym->kind == CONSTSYM
+  else { //sym->kind == CONSTSYM
     tok->tokentype = NUMBERTOK;
 
     if(sym->basicdt ==0){           //INTEGER
       tok->datatype = INTEGER;
       tok->intval = sym->constval.intnum;
     }
-    else if(sym->basicdt == 1){     //REAL
+    else if (sym->basicdt == 1) {     //REAL
       tok->datatype = REAL;
       tok->realval = sym->constval.realnum;
     }
@@ -2194,7 +2194,7 @@ void instvars(TOKEN id_list, TOKEN typetok) {
 
   int align = 0;
   //4 is alignment requirement, 16 is padding
-  if(typesym->size > 4)
+  if (typesym->size > 4)
     align = 16;
   else
     align = alignsize(typesym);
@@ -2216,12 +2216,9 @@ void  instconst(TOKEN idtok, TOKEN consttok) {
   printdeubg("instconst()\n");
 
   SYMBOL sym, typesym;
-  //typesym = consttok->symtype;
   
   sym = insertsym(idtok->stringval);
   sym->kind = CONSTSYM;
-
-  //strncpy(sym->constval.stringconst, idtok->stringval, 16);
 
   sym->basicdt = consttok->datatype;
 
@@ -2231,7 +2228,7 @@ void  instconst(TOKEN idtok, TOKEN consttok) {
     sym->constval.intnum = consttok-> intval;
   }
   //REAL
-  else if(sym->basicdt == 1){  
+  else if (sym->basicdt == 1){  
     sym->size = 8;
     sym->constval.realnum = consttok-> realval;
   }
@@ -2327,14 +2324,19 @@ TOKEN makeprogram(TOKEN name, TOKEN args, TOKEN statements) {
   }
   else
     printf("\n");
+
   TOKEN program = talloc();
   TOKEN tmpArgs = talloc();
   program->tokentype = OPERATOR;
   program->whichval = PROGRAMOP;
   program->operands = name;
   
-  tmpArgs = makeprogn(tmpArgs, args);
+  tmpArgs->tokentype = OPERATOR;
+  tmpArgs->whichval = PROGNOP;
   name->link = tmpArgs;
+
+  //tmpArgs = makeprogn(tmpArgs, args);
+  tmpArgs->operands = args;
   tmpArgs->link = statements;
   
   printdeubg("makeprogram() ends\n");
@@ -2514,7 +2516,7 @@ TOKEN findtype(TOKEN tok) {
 }
 
 void printdeubg (char arr[]) {
-  /*
+  
   char array[sizeof(arr) + 1];
   int i;
   for (i=0; i < sizeof(arr); i++)
@@ -2523,7 +2525,7 @@ void printdeubg (char arr[]) {
 
   if (DEBUG)
     printf("%s", arr);
-  */
+  
 }
 int wordaddress(int n, int wordsize) {
   return ((n + wordsize - 1) / wordsize) * wordsize;

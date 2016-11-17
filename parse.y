@@ -80,7 +80,7 @@ TOKEN parseresult;
 %error-verbose
 %%
 
-  program   : PROGRAM IDENTIFIER LPAREN id_list RPAREN SEMICOLON cblock DOT  
+  program   : PROGRAM IDENTIFIER LPAREN id_list RPAREN SEMICOLON lblock DOT  
                                                         { printdeubg("1 program\n"); parseresult = makeprogram($2, $4, $7); }
             ;
   variable  : IDENTIFIER                                { printdeubg("1 variable\n"); $$ = findid($1); }
@@ -89,8 +89,9 @@ TOKEN parseresult;
             | IDENTIFIER                                { printdeubg("2 id_list\n"); $$ = cons($1, NULL); }
             ;  
   type      : simple_type                               { printdeubg("1 type\n"); }
-          //  | ARRAY LBRACKET simple_type_list RBRACKET OF type { printdeubg("2 type\n"); $$ = NULL; }
-          //  | POINT IDENTIFIER                          { printdeubg("3 type\n"); $$ = NULL; }
+            | ARRAY LBRACKET simple_type_list RBRACKET OF type { printdeubg("2 type\n"); $$ = NULL; }
+            | POINT IDENTIFIER                          { printdeubg("3 type\n"); $$ = NULL; }
+            | RECORD fieldlist END                      {printdeubg("3 type\n"); $$ = makerecord($2); }      
             ;  
   cdef      : IDENTIFIER EQ constant                    { printdeubg("1 cdef\n"); instconst($1, $3); }
             ;
@@ -98,7 +99,18 @@ TOKEN parseresult;
             | cdef SEMICOLON                            { printdeubg("2 cdef_list\n"); cons($1, NULL); }
             ;
   cblock    : CONST cdef_list vblock                    { printdeubg("1 cblock\n"); $$ = $3; }
-            | vblock
+            | vblock                                    { printdeubg("2 cblock\n"); }
+            ;
+  lblock    : LABEL label_list SEMICOLON cblock         { printdeubg("1 lblock\n"); $$ = $4; }
+            | cblock                                    { printdeubg("2 lblock\n"); }
+            ;
+  label_list: num_list                                  { printdeubg("1 label_list\n"); makelabel($1); }
+            ; 
+  num_list  : NUMBER COMMA num_list                     { printdeubg("1 num_list\n"); $$ = cons($1, $3); }
+            | NUMBER                                    { printdeubg("2 num_list\n"); }
+            ; 
+  field_list:  id_list COLON type SEMICOLON field_list  { printdeubg("1 field_list\n"); $$ = combinelists(opscons($1,$3), $5); }
+            |  id_list COLON type                       { printdeubg("2 field_list\n"); $$ = opscons($1,$3);}
             ;
   constant  : IDENTIFIER                                { printdeubg("1 constant\n"); }
             | NUMBER                                    { printdeubg("2 constant\n"); }
@@ -107,8 +119,8 @@ TOKEN parseresult;
             | sign IDENTIFIER                           { printdeubg("5 constant\n"); }
             ;
   simple_type: IDENTIFIER                               { printdeubg("1 simple_type\n"); $$ = findtype($1); }
-           // | LPAREN id_list RPAREN                     { printdeubg("2 simple_type\n"); $$ = NULL; }
-           // | NUMBER DOTDOT NUMBER /*NUMBER|constant?*/ { printdeubg("3 simple_type\n"); $$ = NULL; }
+            | LPAREN id_list RPAREN                     { printdeubg("2 simple_type\n"); $$ = NULL; }
+            | NUMBER DOTDOT NUMBER /*NUMBER|constant?*/ { printdeubg("3 simple_type\n"); $$ = NULL; }
             ;
   simple_type_list : simple_type COMMA simple_type_list { printdeubg("1 simple_type_list\n"); $$ = cons($3, $1); }
                    | simple_type                        { printdeubg("2 simple_type_list\n"); }
@@ -119,8 +131,8 @@ TOKEN parseresult;
             | block                                     { printdeubg("2 vblock\n"); }
             ; 
   vdef_list : vdef SEMICOLON vdef_list                  { printdeubg("1 vdef_list\n"); cons($1, $3); }
-            | vdef                                      { printdeubg("2 vdef_list\n"); }  
-            | vdef SEMICOLON                            { printdeubg("3 vdef_list\n"); }  
+            | vdef                                      { printdeubg("2 vdef_list\n"); }
+            | vdef SEMICOLON                            { printdeubg("3 vdef_list\n"); }
             ;
   vdef      : id_list COLON type                        { printdeubg("1 vdef\n"); instvars($1, $3); printdeubg("1 vdef end\n"); }
             ;
@@ -132,6 +144,7 @@ TOKEN parseresult;
             | funcall                                   { printdeubg("4 statement\n"); }
             | IF expression THEN statement endif        { printdeubg("5 statement\n"); $$ = makeif($1, $2, $4, $5); }
             | FOR assignment TO expression DO statement { printdeubg("6 statement\n"); $$ = makefor(1, $1, $2, $3, $4, $5, $6); }
+            | WHILE expression DO statement             { printdeubg("7 statement\n"); $$ = makewhile($1,$2,$3,$4); }
             | REPEAT statement_list UNTIL expression    { printdeubg("8 statement\n"); $$ = makerepeat($1, $2, $3, $4); }
             | IDENTIFIER LPAREN args RPAREN             { printdeubg("9 statement\n"); $$ = makefuncall($2, $1, $3); }
             ;

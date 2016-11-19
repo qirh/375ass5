@@ -879,7 +879,32 @@ TOKEN instfields(TOKEN idlist, TOKEN typetok) {
 
 }
 void  insttype(TOKEN typename, TOKEN typetok) {
-  printdeubg("insttype() ERROR \n");
+  printdeubg("insttype() \n");
+
+  SYMBOL typesym;
+  /* This type token is an unamed type */
+  if(!strcmp(typetok->stringval,"")) {
+    typesym = typetok->symtype;
+  }
+  else {
+    typesym = searchst(typetok->stringval);
+  }
+  /* Has this type already been declared? If so, define it */
+  SYMBOL sym = searchst(typename->stringval);
+
+  if(sym == NULL) {
+   sym = inserttype(typename->stringval, typesym->size);
+   sym->datatype = typesym;
+  }
+
+  else {
+      sym->kind = TYPESYM;
+      sym->size = typesym->size;
+      sym->datatype = typesym;
+  }
+  sym->basicdt = typesym->basicdt;
+  printdeubg("insttype() ends \n");
+
 }
 TOKEN instpoint(TOKEN tok, TOKEN typename) {
   

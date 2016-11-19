@@ -222,6 +222,7 @@ TOKEN parseresult;
   */
 
 #define DEBUG 2
+typedef enum {false, true} bool;
 
  int labelnumber = 0;  /* sequential counter for internal label numbers */
 
@@ -691,7 +692,7 @@ TOKEN reducedot(TOKEN var, TOKEN dot, TOKEN field) {
   /* Skip to the pointer's RECORDSYM symbol */
   if(record->kind == POINTERSYM) {
     record = record->datatype;
-    record = skipTypes(record);
+    record = skiptype(record);
     ispointer = true;
   }
   int oldOffset = 0;
@@ -727,9 +728,9 @@ TOKEN reducedot(TOKEN var, TOKEN dot, TOKEN field) {
     dot->operands = var;
   }
 
-  dot->operands->link = constant(offset);
+  dot->operands->link = makeintc(offset);
 
-  dot->symtype = skipTypes(record->datatype);
+  dot->symtype = skiptype(record->datatype);
   
   printdeubg("reducedot() ends \n");
   return dot;
@@ -889,7 +890,7 @@ TOKEN instpoint(TOKEN tok, TOKEN typename) {
   
   if(DEBUG)
     printf("%d\n", tok->symtype->size);
-  
+
   printdeubg("instpoint() ends \n");
   return tok;
 

@@ -601,7 +601,7 @@ TOKEN makerepeat(TOKEN tok, TOKEN statements, TOKEN tokxzczxv, TOKEN expr) {
     printdebug("tok1 is: \n");
     ppexpr(tok1);
   }
-  printdebug("makerepeat() ends \n");
+  printdebug("makerepeat() ends \n\n");
   return tok1;
 }
 
@@ -732,7 +732,7 @@ TOKEN reducedot(TOKEN var, TOKEN dot, TOKEN field) {
 
   dot->symtype = skiptype(record->datatype);
   
-  printdebug("reducedot() ends \n");
+  printdebug("reducedot() ends \n\n");
   return dot;
 
 }
@@ -855,7 +855,7 @@ TOKEN instrec(TOKEN rectok, TOKEN argstok) {
   record->datatype = first;
   record->size = size;
   rectok->symtype = record;     
-  printdebug("instrec() ends \n");
+  printdebug("instrec() ends \n\n");
   return rectok;
 
 }
@@ -864,17 +864,16 @@ TOKEN dopoint(TOKEN var, TOKEN tok) {
 }
 TOKEN instfields(TOKEN idlist, TOKEN typetok) {
   
-  printdebug("instfields() ERROR \n");
+  printdebug("instfields() \n");
   TOKEN tmp = idlist;
+
   while(tmp){
-    tmp->symtype = typetok->symtype;     //connecting each id in list to it's type
-    //printf("%s, ", temp->stringval);
+    tmp->symtype = typetok->symtype;
     tmp = tmp->link;
   }
   
-  printf("\n%s\n", typetok->symtype->namestring);
-  
-  printdebug("instfields() ends \n");
+  printf("%s\n", typetok->symtype->namestring);
+  printdebug("instfields() ends \n\n");
   return idlist;
 
 }
@@ -897,8 +896,8 @@ void insttype(TOKEN typename, TOKEN typetok) {
     typesym->size = typetok->symtype->size;
     typesym->basicdt = typetok->symtype->basicdt;
   }
-  
-  printdebug("insttype() ends \n");
+
+  printdebug("insttype() ends \n\n\n");
 
 }
 TOKEN instpoint(TOKEN tok, TOKEN typename) {
@@ -925,7 +924,48 @@ TOKEN instpoint(TOKEN tok, TOKEN typename) {
   if(DEBUG)
     printf("%d\n", tok->symtype->size);
 
-  printdebug("instpoint() ends \n");
+  printdebug("instpoint() ends \n\n");
+  return tok;
+
+}
+TOKEN instenum(TOKEN idlist) {
+
+  printdebug("instenum() \n");
+  int low = 0, high = 0;
+  TOKEN temp = idlist;
+  while(temp){
+    temp = temp->link;
+    high++;
+  }
+  TOKEN subrange = makesubrange(copytok(idlist), low, high - 1);
+  int i = 0;
+  temp = idlist;
+  TOKEN number = copytok(idlist);
+  number->tokentype = NUMBERTOK;
+  number->datatype = INTEGER;
+  //install constant for each value of subrange
+  for(; i < high; i++){
+    number->intval = i;
+    instconst(temp, number);
+    number = copytok(number);
+    temp = temp->link;
+  }
+  printdebug("instenum() ends \n\n");
+  return subrange;
+}
+TOKEN makesubrange(TOKEN tok, int low, int high){
+
+  printdebug("makesubrange() \n");
+  SYMBOL subrange = makesym("subrange");
+  subrange->kind = SUBRANGE;
+  subrange->highbound = high;
+  subrange->lowbound = low;
+  subrange->basicdt = INTEGER;
+  subrange->size = basicsizes[INTEGER];
+  tok->symtype = subrange;
+  tok->tokentype = NUMBERTOK;
+  
+  printdebug("makesubrange() ends \n\n");
   return tok;
 
 }

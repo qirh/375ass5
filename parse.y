@@ -810,45 +810,46 @@ TOKEN instrec(TOKEN rectok, TOKEN argstok) {
   printdeubg("instrec() \n");
 
   //printf("installing record into symbol table...\n");
-  SYMBOL temptab[50];
-  TOKEN temp = argstok;
-  while(temp){
-    //printf("%s: %s, ", temp->stringval, temp->symtype->namestring);
-    temp = temp->link;
+  SYMBOL tmptab[50];
+  TOKEN tmp = argstok;
+  while(tmp){
+    printf("%s: %s, ", tmp->stringval, tmp->symtype->namestring);
+    tmp = tmp->link;
   }
-  //printf("\n");
-  SYMBOL temptable[50];               //hold the symbols temporarily
+  printf("\n");
+  SYMBOL tmptable[50];              
   SYMBOL record = makesym("");
   record->kind = RECORDSYM;
   int size = 0;
-  SYMBOL sym, typesym; int align;
-  //accumulate size of each field and store in recordsym
-  temp = argstok;
+  SYMBOL sym, typesym; 
+  int align;
+
+  tmp = argstok;
   SYMBOL first;
-  typesym = temp->symtype;
+  typesym = tmp->symtype;
   align = alignsize(typesym);
   int index = 0;
-  while(temp){
-    sym = makesym(temp->stringval);
+  while(tmp){
+    sym = makesym(tmp->stringval);
     if(index == 0)
       first = sym;
-    sym->datatype = temp->symtype;
+    sym->datatype = tmp->symtype;
     sym->offset += size;
-    sym->size = temp->symtype->size;
+    sym->size = tmp->symtype->size;
     //add padding
-    if((size % 8 != 0) && (temp->symtype->size == 8)){
+    if((size % 8 != 0) && (tmp->symtype->size == 8)){
       size += 4;
     }   
-    size += temp->symtype->size;
-    temptab[index] = sym;           //insert so you can link together later
-    temp = temp->link;
-    //printf("NAME: %s, DATATYPE: %s, OFFSET: %d, SIZE: %d\n", sym->namestring, sym->datatype->namestring, sym->offset, sym->size);
+    size += tmp->symtype->size;
+    tmptab[index] = sym;    
+    tmp = tmp->link;
+    
     index++;
   }
   
   int i = 0;
   for(; i < index - 1; i++){
-    temptab[i]->link = temptab[i+1];
+    tmptab[i]->link = tmptab[i+1];
   }
   
   record->datatype = first;
@@ -862,7 +863,20 @@ TOKEN dopoint(TOKEN var, TOKEN tok) {
   printdeubg("dopoint() ERROR \n");
 }
 TOKEN instfields(TOKEN idlist, TOKEN typetok) {
+  
   printdeubg("instfields() ERROR \n");
+  TOKEN tmp = idlist;
+  while(tmp){
+    tmp->symtype = typetok->symtype;     //connecting each id in list to it's type
+    //printf("%s, ", temp->stringval);
+    tmp = tmp->link;
+  }
+  
+  printf("\n%s\n", typetok->symtype->namestring);
+  
+  printdeubg("instfields() ends \n");
+  return idlist;
+
 }
 void  insttype(TOKEN typename, TOKEN typetok) {
   printdeubg("insttype() ERROR \n");
@@ -874,13 +888,13 @@ TOKEN instpoint(TOKEN tok, TOKEN typename) {
   SYMBOL tsym = searchst(typename->stringval);
   if(DEBUG)
     printf("%s\n", typename->stringval);
-  SYMBOL temp = insertsym(typename->stringval);
-  temp->kind = TYPESYM;
+  SYMBOL tmp = insertsym(typename->stringval);
+  tmp->kind = TYPESYM;
   
   
   SYMBOL pointersym = makesym(typename->stringval);   
   pointersym->kind = POINTERSYM;
-  pointersym->datatype = temp;
+  pointersym->datatype = tmp;
   pointersym->size = basicsizes[POINTER];
   pointersym->basicdt = POINTER;
   if(DEBUG)

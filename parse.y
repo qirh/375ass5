@@ -631,7 +631,7 @@ TOKEN findtype(TOKEN tok) {
 TOKEN nconc(TOKEN lista, TOKEN listb){
   TOKEN tmp = lista;
   while( tmp->link )
-    tmp = temp->link;
+    tmp = tmp->link;
   tmp->link = listb;
   return lista;
   

@@ -702,12 +702,18 @@ TOKEN arrayref(TOKEN arr, TOKEN tok, TOKEN subs, TOKEN tokb) {
   }
 
   TOKEN ret = createtok(OPERATOR,AREFOP);
-  array = skipTypes(array);
+  array = skiptype(array);
   ret->operands = arr;
   ret->operands->link = offsetTok;
   ret->symtype = array;
 
   return ret;
+}
+SYMBOL skiptype(SYMBOL sym) {
+  while(sym->kind == TYPESYM) {
+    sym = sym->datatype;
+  }
+  return sym;
 }
 TOKEN dopoint(TOKEN var, TOKEN tok) {
 

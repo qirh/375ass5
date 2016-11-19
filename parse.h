@@ -196,3 +196,4 @@ TOKEN instarray(TOKEN bounds, TOKEN typetok);
 TOKEN talloc();
 
 void printdeubg(char arr[]);
+SYMBOL skiptype(SYMBOL sym);

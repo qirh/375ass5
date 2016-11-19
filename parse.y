@@ -871,7 +871,8 @@ TOKEN instpoint(TOKEN tok, TOKEN typename) {
   printdeubg("instpoint() \n");
   
   SYMBOL tsym = searchst(typename->stringval);
-  printdeubg("%s\n", typename->stringval);
+  if(DEBUG)
+    printf("%s\n", typename->stringval);
   SYMBOL temp = insertsym(typename->stringval);
   temp->kind = TYPESYM;
   
@@ -881,12 +882,14 @@ TOKEN instpoint(TOKEN tok, TOKEN typename) {
   pointersym->datatype = temp;
   pointersym->size = basicsizes[POINTER];
   pointersym->basicdt = POINTER;
-  printdeubg("POINTER = %d\n", POINTER);
+  if(DEBUG)
+    printf("POINTER = %d\n", POINTER);
   
   tok->symtype = pointersym;
   
+  if(DEBUG)
+    printf("%d\n", tok->symtype->size);
   
-  printdeubg("%d\n", tok->symtype->size);
   printdeubg("instpoint() ends \n");
   return tok;
 

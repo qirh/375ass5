@@ -94,7 +94,7 @@ TOKEN parseresult;
   type      : simple_type                               { printdeubg("1 type\n"); }
             | ARRAY LBRACKET simple_type_list RBRACKET OF type { printdeubg("2 type\n"); $$ = NULL; }
             | POINT IDENTIFIER                          { printdeubg("3 type\n"); $$ = instpoint($1, $2);; }
-            | RECORD field_list END                     { printdeubg("4 type\n"); $$ = makerecord($2); }      
+            | RECORD field_list END                     { printdeubg("4 type\n"); $$ = instrec($1, $2); }      
             ;  
   label_list: num_list                                  { printdeubg("1 label_list\n"); makelabel($1); }
             ; 
@@ -129,7 +129,7 @@ TOKEN parseresult;
   cblock    : CONST cdef_list tblock                    { printdeubg("1 cblock\n"); $$ = $3; }
             | tblock                                    { printdeubg("2 cblock\n"); }
             ;
-  tdef      : IDENTIFIER EQ type                        { printdeubg("1 tdef\n"); maketype($1, $3); }
+  tdef      : IDENTIFIER EQ type                        { printdeubg("1 tdef\n"); insttype($1, $3); }
             ;
   tdef_list : tdef SEMICOLON tdef_list                  { printdeubg("1 tdef_list\n"); }
             | tdef                                      { printdeubg("2 tdef_list\n"); }
@@ -629,15 +629,17 @@ TOKEN findtype(TOKEN tok) {
 
 //assignment5
 TOKEN nconc(TOKEN lista, TOKEN listb){
+  printdeubg("nconc() \n");
   TOKEN tmp = lista;
   while( tmp->link )
     tmp = tmp->link;
   tmp->link = listb;
+  printdeubg("nconc() ends\n");
   return lista;
   
 }
 TOKEN makewhile(TOKEN tok, TOKEN expr, TOKEN tokb, TOKEN statement) {
-  
+  printdeubg("makewhile() \n");
   TOKEN labeltok = talloc();
   labeltok->tokentype = OPERATOR;
   labeltok->whichval = LABELOP;
@@ -666,15 +668,18 @@ TOKEN makewhile(TOKEN tok, TOKEN expr, TOKEN tokb, TOKEN statement) {
   gototok->tokentype = OPERATOR;
   gototok->whichval = GOTOOP;
 
-  TOKEN gotonum = copytoken(numtok);
+  TOKEN gotonum = copytok(numtok);
   tmp->link = unaryop(gototok, gotonum);
-  
+  printdeubg("makewhile() ends\n");
   return progntok;
-}
-TOKEN reducedot(TOKEN var, TOKEN dot, TOKEN field) {
 
 }
+TOKEN reducedot(TOKEN var, TOKEN dot, TOKEN field) {
+  printdeubg("reducedot() ERROR\n");
+}
 TOKEN arrayref(TOKEN arr, TOKEN tok, TOKEN subs, TOKEN tokb) {
+  
+  printdeubg("arrayref() \n");
   int index = 0;
   int offset = 0;
   SYMBOL array = arr->symtype;
@@ -685,8 +690,8 @@ TOKEN arrayref(TOKEN arr, TOKEN tok, TOKEN subs, TOKEN tokb) {
     TOKEN link = subs->link;
     int size = array->datatype->size;
 
-    TOKEN mul = binop(createtok(OPERATOR,TIMESOP), constant(size), subs);
-    TOKEN add = binop(createtok(OPERATOR,PLUSOP), constant(-size * array->lowbound), mul);
+    TOKEN mul = binop(createtok(OPERATOR,TIMESOP), makeintc(size), subs);
+    TOKEN add = binop(createtok(OPERATOR,PLUSOP), makeintc(-size * array->lowbound), mul);
 
     if(offsetTok != NULL) {
       TOKEN addlast = binop(createtok(OPERATOR,PLUSOP), offsetTok, add);
@@ -707,25 +712,55 @@ TOKEN arrayref(TOKEN arr, TOKEN tok, TOKEN subs, TOKEN tokb) {
   ret->operands->link = offsetTok;
   ret->symtype = array;
 
+  printdeubg("arrayref() ends\n");
   return ret;
+
 }
 SYMBOL skiptype(SYMBOL sym) {
+  
+  printdeubg("skiptype() \n");
   while(sym->kind == TYPESYM) {
     sym = sym->datatype;
   }
+  printdeubg("skiptype() ends\n");
   return sym;
+
 }
-TOKEN dopoint(TOKEN var, TOKEN tok) {
+TOKEN copytok(TOKEN tok) {
+  printdeubg("copytok() \n");
+  TOKEN ret = talloc();
+  *ret = *tok;
+  ret->operands = NULL;
+  ret->link = NULL;
+
+  printdeubg("copytok() \n");
+  return ret;
+
+}
+TOKEN createtok(int what, int which) {
+  
+  printdeubg("createtok() \n");
+  TOKEN ret = talloc();
+  ret->tokentype = what;
+  ret->whichval = which;
+  printdeubg("createtok() \n");
+  return ret;
 
 }
 TOKEN instrec(TOKEN rectok, TOKEN argstok) {
-
+  printdeubg("instrec() ERROR \n");
+  }
+TOKEN dopoint(TOKEN var, TOKEN tok) {
+  printdeubg("dopoint() ERROR \n");
 }
 TOKEN instfields(TOKEN idlist, TOKEN typetok) {
-
+  printdeubg("instfields() ERROR \n");
 }
 void  insttype(TOKEN typename, TOKEN typetok) {
-
+  printdeubg("insttype() ERROR \n");
+}
+TOKEN instpoint(TOKEN tok, TOKEN typename) {
+  printdeubg("instpoint() ERROR \n");
 }
 
 void printdeubg (char arr[]) {

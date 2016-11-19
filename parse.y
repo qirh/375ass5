@@ -878,31 +878,26 @@ TOKEN instfields(TOKEN idlist, TOKEN typetok) {
   return idlist;
 
 }
-void  insttype(TOKEN typename, TOKEN typetok) {
+void insttype(TOKEN typename, TOKEN typetok) {
   printdeubg("insttype() \n");
 
-  SYMBOL typesym;
-  /* This type token is an unamed type */
-  if(!strcmp(typetok->stringval,"")) {
-    typesym = typetok->symtype;
+  SYMBOL tmp = searchst(typename->stringval);
+  if(tmp){
+    printdebug(" yes!\n");
+    tmp->kind = TYPESYM;
+    tmp->datatype = typetok->symtype;
+    tmp->size = typetok->symtype->size;
+    tmp->basicdt = typetok->symtype->basicdt;
   }
-  else {
-    typesym = searchst(typetok->stringval);
+  else{
+    printdebug(" no\n");
+    SYMBOL typesym = insertsym(typename->stringval);
+    typesym->kind = TYPESYM;
+    typesym->datatype = typetok->symtype;
+    typesym->size = typetok->symtype->size;
+    typesym->basicdt = typetok->symtype->basicdt;
   }
-  /* Has this type already been declared? If so, define it */
-  SYMBOL sym = searchst(typename->stringval);
-
-  if(sym == NULL) {
-   sym = inserttype(typename->stringval, typesym->size);
-   sym->datatype = typesym;
-  }
-
-  else {
-      sym->kind = TYPESYM;
-      sym->size = typesym->size;
-      sym->datatype = typesym;
-  }
-  sym->basicdt = typesym->basicdt;
+  
   printdeubg("insttype() ends \n");
 
 }

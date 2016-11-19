@@ -81,136 +81,136 @@ TOKEN parseresult;
 %%
 
   program   : PROGRAM IDENTIFIER LPAREN id_list RPAREN SEMICOLON lblock DOT  
-                                                        { printdeubg("1 program\n"); parseresult = makeprogram($2, $4, $7); }
+                                                        { printdebug("1 program\n"); parseresult = makeprogram($2, $4, $7); }
             ;
-  variable  : IDENTIFIER                                { printdeubg("1 variable\n"); $$ = findid($1); }
-            | variable DOT IDENTIFIER                   { printdeubg("2 variable\n"); $$ = reducedot($1, $2, $3); }
-            | variable POINT                            { printdeubg("3 variable\n"); $$ = dopoint($1, $2); }
-            | variable LBRACKET expr_list RBRACKET      { printdeubg("4 variable\n"); $$ = arrayref($1, $2, $3, $4);}
+  variable  : IDENTIFIER                                { printdebug("1 variable\n"); $$ = findid($1); }
+            | variable DOT IDENTIFIER                   { printdebug("2 variable\n"); $$ = reducedot($1, $2, $3); }
+            | variable POINT                            { printdebug("3 variable\n"); $$ = dopoint($1, $2); }
+            | variable LBRACKET expr_list RBRACKET      { printdebug("4 variable\n"); $$ = arrayref($1, $2, $3, $4);}
             ;
-  id_list   : IDENTIFIER COMMA id_list                  { printdeubg("1 id_list\n"); $$ = cons($1, $3); }
-            | IDENTIFIER                                { printdeubg("2 id_list\n"); $$ = cons($1, NULL); }
+  id_list   : IDENTIFIER COMMA id_list                  { printdebug("1 id_list\n"); $$ = cons($1, $3); }
+            | IDENTIFIER                                { printdebug("2 id_list\n"); $$ = cons($1, NULL); }
             ;  
-  type      : simple_type                               { printdeubg("1 type\n"); }
-            | ARRAY LBRACKET simple_type_list RBRACKET OF type { printdeubg("2 type\n"); $$ = NULL; }
-            | POINT IDENTIFIER                          { printdeubg("3 type\n"); $$ = instpoint($1, $2);; }
-            | RECORD field_list END                     { printdeubg("4 type\n"); $$ = instrec($1, $2); }      
+  type      : simple_type                               { printdebug("1 type\n"); }
+            | ARRAY LBRACKET simple_type_list RBRACKET OF type { printdebug("2 type\n"); $$ = NULL; }
+            | POINT IDENTIFIER                          { printdebug("3 type\n"); $$ = instpoint($1, $2);; }
+            | RECORD field_list END                     { printdebug("4 type\n"); $$ = instrec($1, $2); }      
             ;  
-  label_list: num_list                                  { printdeubg("1 label_list\n"); makelabel($1); }
+  label_list: num_list                                  { printdebug("1 label_list\n"); makelabel($1); }
             ; 
-  num_list  : NUMBER COMMA num_list                     { printdeubg("1 num_list\n"); $$ = cons($1, $3); }
-            | NUMBER                                    { printdeubg("2 num_list\n"); }
+  num_list  : NUMBER COMMA num_list                     { printdebug("1 num_list\n"); $$ = cons($1, $3); }
+            | NUMBER                                    { printdebug("2 num_list\n"); }
             ; 
-  fields    : id_list COLON type                        { printdeubg("1 fields\n");  }
+  fields    : id_list COLON type                        { printdebug("1 fields\n");  }
             ;
-  field_list: fields SEMICOLON field_list               { printdeubg("1 field_list\n"); $$ = nconc($1,$3); }
-            | id_list COLON type                        { printdeubg("2 field_list\n"); instfields($1, $3); }
+  field_list: fields SEMICOLON field_list               { printdebug("1 field_list\n"); $$ = nconc($1,$3); }
+            | id_list COLON type                        { printdebug("2 field_list\n"); instfields($1, $3); }
             ;
-  constant  : IDENTIFIER                                { printdeubg("1 constant\n"); }
-            | NUMBER                                    { printdeubg("2 constant\n"); }
-            | STRING                                    { printdeubg("3 constant\n"); } 
-            | sign NUMBER                               { printdeubg("4 constant\n"); }
-            | sign IDENTIFIER                           { printdeubg("5 constant\n"); }
+  constant  : IDENTIFIER                                { printdebug("1 constant\n"); }
+            | NUMBER                                    { printdebug("2 constant\n"); }
+            | STRING                                    { printdebug("3 constant\n"); } 
+            | sign NUMBER                               { printdebug("4 constant\n"); }
+            | sign IDENTIFIER                           { printdebug("5 constant\n"); }
             ;
-  simple_type: IDENTIFIER                               { printdeubg("1 simple_type\n"); $$ = findtype($1); }
-            | LPAREN id_list RPAREN                     { printdeubg("2 simple_type ERROR\n"); $$ = NULL; }
-            | NUMBER DOTDOT NUMBER                      { printdeubg("3 simple_type ERROR\n"); $$ = NULL; }
+  simple_type: IDENTIFIER                               { printdebug("1 simple_type\n"); $$ = findtype($1); }
+            | LPAREN id_list RPAREN                     { printdebug("2 simple_type ERROR\n"); $$ = NULL; }
+            | NUMBER DOTDOT NUMBER                      { printdebug("3 simple_type ERROR\n"); $$ = NULL; }
             ;
-  simple_type_list : simple_type COMMA simple_type_list { printdeubg("1 simple_type_list\n"); $$ = cons($3, $1); }
-                   | simple_type                        { printdeubg("2 simple_type_list\n"); }
+  simple_type_list : simple_type COMMA simple_type_list { printdebug("1 simple_type_list\n"); $$ = cons($3, $1); }
+                   | simple_type                        { printdebug("2 simple_type_list\n"); }
                    ;
-  block     : BEGINBEGIN statement endpart              { printdeubg("1 block\n"); $$ = makeprogn($1, cons($2, $3));  }
+  block     : BEGINBEGIN statement endpart              { printdebug("1 block\n"); $$ = makeprogn($1, cons($2, $3));  }
             ;
-  cdef      : IDENTIFIER EQ constant                    { printdeubg("1 cdef\n"); instconst($1, $3); }
+  cdef      : IDENTIFIER EQ constant                    { printdebug("1 cdef\n"); instconst($1, $3); }
             ;
-  cdef_list : cdef SEMICOLON cdef_list                  { printdeubg("1 cdef_list\n"); cons($1, $3); }
-            | cdef SEMICOLON                            { printdeubg("2 cdef_list\n"); cons($1, NULL); }
+  cdef_list : cdef SEMICOLON cdef_list                  { printdebug("1 cdef_list\n"); cons($1, $3); }
+            | cdef SEMICOLON                            { printdebug("2 cdef_list\n"); cons($1, NULL); }
             ;
-  cblock    : CONST cdef_list tblock                    { printdeubg("1 cblock\n"); $$ = $3; }
-            | tblock                                    { printdeubg("2 cblock\n"); }
+  cblock    : CONST cdef_list tblock                    { printdebug("1 cblock\n"); $$ = $3; }
+            | tblock                                    { printdebug("2 cblock\n"); }
             ;
-  tdef      : IDENTIFIER EQ type                        { printdeubg("1 tdef\n"); insttype($1, $3); }
+  tdef      : IDENTIFIER EQ type                        { printdebug("1 tdef\n"); insttype($1, $3); }
             ;
-  tdef_list : tdef SEMICOLON tdef_list                  { printdeubg("1 tdef_list\n"); }
-            | tdef                                      { printdeubg("2 tdef_list\n"); }
+  tdef_list : tdef SEMICOLON tdef_list                  { printdebug("1 tdef_list\n"); }
+            | tdef                                      { printdebug("2 tdef_list\n"); }
             ;
-  tblock    : TYPE tdef_list vblock                     { printdeubg("1 tblock\n"); $$ = $3; }
-            | vblock                                    { printdeubg("2 tblock\n"); }
+  tblock    : TYPE tdef_list vblock                     { printdebug("1 tblock\n"); $$ = $3; }
+            | vblock                                    { printdebug("2 tblock\n"); }
             ;
-  lblock    : LABEL label_list SEMICOLON cblock         { printdeubg("1 lblock\n"); $$ = $4; }
-            | cblock                                    { printdeubg("2 lblock\n"); }
+  lblock    : LABEL label_list SEMICOLON cblock         { printdebug("1 lblock\n"); $$ = $4; }
+            | cblock                                    { printdebug("2 lblock\n"); }
             ;
-  vdef      : id_list COLON type                        { printdeubg("1 vdef\n"); instvars($1, $3); printdeubg("1 vdef end\n"); }
+  vdef      : id_list COLON type                        { printdebug("1 vdef\n"); instvars($1, $3); printdebug("1 vdef end\n"); }
             ;
-  vdef_list : vdef SEMICOLON vdef_list                  { printdeubg("1 vdef_list\n"); cons($1, $3); }
-            | vdef                                      { printdeubg("2 vdef_list\n"); }
-            | vdef SEMICOLON                            { printdeubg("3 vdef_list\n"); }
+  vdef_list : vdef SEMICOLON vdef_list                  { printdebug("1 vdef_list\n"); cons($1, $3); }
+            | vdef                                      { printdebug("2 vdef_list\n"); }
+            | vdef SEMICOLON                            { printdebug("3 vdef_list\n"); }
             ;
-  vblock    : VAR vdef_list block                       { printdeubg("1 vblock\n"); $$ = $3; }
-            | block                                     { printdeubg("2 vblock\n"); }
+  vblock    : VAR vdef_list block                       { printdebug("1 vblock\n"); $$ = $3; }
+            | block                                     { printdebug("2 vblock\n"); }
             ; 
-  funcall   : IDENTIFIER LPAREN expr_list RPAREN        { printdeubg("1 funcall\n"); $$ = makefuncall(talloc(), $1, $3); }
+  funcall   : IDENTIFIER LPAREN expr_list RPAREN        { printdebug("1 funcall\n"); $$ = makefuncall(talloc(), $1, $3); }
             ;
-  statement : BEGINBEGIN statement endpart              { printdeubg("1 statement\n"); $$ = makeprogn($1, cons($2, $3)); }
-            | NUMBER COLON statement                    { printdeubg("2 statement\n"); $$ = NULL; }
-            | assignment                                { printdeubg("3 statement\n"); }
-            | funcall                                   { printdeubg("4 statement\n"); }
-            | IF expression THEN statement endif        { printdeubg("5 statement\n"); $$ = makeif($1, $2, $4, $5); }
-            | FOR assignment TO expression DO statement { printdeubg("6 statement\n"); $$ = makefor(1, $1, $2, $3, $4, $5, $6); }
-            | WHILE expression DO statement             { printdeubg("7 statement\n"); $$ = makewhile($1,$2,$3,$4); }
-            | REPEAT statement_list UNTIL expression    { printdeubg("8 statement\n"); $$ = makerepeat($1, $2, $3, $4); }
-            | IDENTIFIER LPAREN args RPAREN             { printdeubg("9 statement\n"); $$ = makefuncall($2, $1, $3); }
-            | GOTO NUMBER                               { printdeubg("A statement\n"); }
+  statement : BEGINBEGIN statement endpart              { printdebug("1 statement\n"); $$ = makeprogn($1, cons($2, $3)); }
+            | NUMBER COLON statement                    { printdebug("2 statement\n"); $$ = NULL; }
+            | assignment                                { printdebug("3 statement\n"); }
+            | funcall                                   { printdebug("4 statement\n"); }
+            | IF expression THEN statement endif        { printdebug("5 statement\n"); $$ = makeif($1, $2, $4, $5); }
+            | FOR assignment TO expression DO statement { printdebug("6 statement\n"); $$ = makefor(1, $1, $2, $3, $4, $5, $6); }
+            | WHILE expression DO statement             { printdebug("7 statement\n"); $$ = makewhile($1,$2,$3,$4); }
+            | REPEAT statement_list UNTIL expression    { printdebug("8 statement\n"); $$ = makerepeat($1, $2, $3, $4); }
+            | IDENTIFIER LPAREN args RPAREN             { printdebug("9 statement\n"); $$ = makefuncall($2, $1, $3); }
+            | GOTO NUMBER                               { printdebug("A statement\n"); }
             ;
-  statement_list: statement SEMICOLON statement_list    { printdeubg("1 statement_list\n"); $$ = cons($1, $3); }
-            | statement                                 { printdeubg("2 statement_list\n"); }
+  statement_list: statement SEMICOLON statement_list    { printdebug("1 statement_list\n"); $$ = cons($1, $3); }
+            | statement                                 { printdebug("2 statement_list\n"); }
             ;
-  endpart   : SEMICOLON statement endpart               { printdeubg("1 endpart\n"); $$ = cons($2, $3); }
-            | END                                       { printdeubg("2 endpart\n"); $$ = NULL; }
+  endpart   : SEMICOLON statement endpart               { printdebug("1 endpart\n"); $$ = cons($2, $3); }
+            | END                                       { printdebug("2 endpart\n"); $$ = NULL; }
             ;
-  endif     : ELSE statement                            { printdeubg("1 endif\n"); $$ = $2; }
-            | /* empty */                               { printdeubg("2 endif\n"); $$ = NULL; }
+  endif     : ELSE statement                            { printdebug("1 endif\n"); $$ = $2; }
+            | /* empty */                               { printdebug("2 endif\n"); $$ = NULL; }
             ;
-  assignment: variable ASSIGN expression                { printdeubg("1 assignment\n"); $$ = binop($2, $1, $3); }
+  assignment: variable ASSIGN expression                { printdebug("1 assignment\n"); $$ = binop($2, $1, $3); }
             ;
-  expr_list : expression COMMA expr_list                { printdeubg("1 expr_list\n"); $$ = cons($1, $3); }
-            | expression                                { printdeubg("2 expr_list\n"); }
+  expr_list : expression COMMA expr_list                { printdebug("1 expr_list\n"); $$ = cons($1, $3); }
+            | expression                                { printdebug("2 expr_list\n"); }
             ;
-  expression: expression compare_op simple_expression   { printdeubg("1 expression\n"); $$ = binop($2, $1, $3); }
-            | expression sign simple_expression         { printdeubg("2 expression\n"); $$ = binop($2, $1, $3); }
-            | simple_expression                         { printdeubg("3 expression\n"); }
+  expression: expression compare_op simple_expression   { printdebug("1 expression\n"); $$ = binop($2, $1, $3); }
+            | expression sign simple_expression         { printdebug("2 expression\n"); $$ = binop($2, $1, $3); }
+            | simple_expression                         { printdebug("3 expression\n"); }
             ;
-  simple_expression: simple_expression sign term        { printdeubg("1 simple_expression\n"); $$ = binop($2, $1, $3); }
-            | term                                      { printdeubg("2 simple_expression\n"); }
-            | sign term                                 { printdeubg("3 simple_expression\n"); $$ = unaryop($1, $2); }
-            | STRING                                    { printdeubg("4 simple_expression\n"); }
+  simple_expression: simple_expression sign term        { printdebug("1 simple_expression\n"); $$ = binop($2, $1, $3); }
+            | term                                      { printdebug("2 simple_expression\n"); }
+            | sign term                                 { printdebug("3 simple_expression\n"); $$ = unaryop($1, $2); }
+            | STRING                                    { printdebug("4 simple_expression\n"); }
             ;
-  term      : term times_op factor                      { printdeubg("1 term\n"); $$ = binop($2, $1, $3); }
-            | factor                                    { printdeubg("2 term\n"); }
+  term      : term times_op factor                      { printdebug("1 term\n"); $$ = binop($2, $1, $3); }
+            | factor                                    { printdebug("2 term\n"); }
             ;
-  factor    : LPAREN expression RPAREN                  { printdeubg("1 factor\n"); $$ = $2; }
-            | MINUS variable                            { printdeubg("2 factor FUNCTION\n"); $$ = unaryop($1, $2); }
-            | MINUS NUMBER                              { printdeubg("3 factor FUNCTION\n"); $$ = unaryop($1, $2); }
-            | variable                                  { printdeubg("4 factor\n"); }
-            | constant                                  { printdeubg("5 factor\n"); }    
-            | funcall                                   { printdeubg("6 factor\n"); }   
+  factor    : LPAREN expression RPAREN                  { printdebug("1 factor\n"); $$ = $2; }
+            | MINUS variable                            { printdebug("2 factor FUNCTION\n"); $$ = unaryop($1, $2); }
+            | MINUS NUMBER                              { printdebug("3 factor FUNCTION\n"); $$ = unaryop($1, $2); }
+            | variable                                  { printdebug("4 factor\n"); }
+            | constant                                  { printdebug("5 factor\n"); }    
+            | funcall                                   { printdebug("6 factor\n"); }   
             ;
-  args      : expression COMMA args                     { printdeubg("1 args\n"); $$ = cons($1, $3); }
-            | expression                                { printdeubg("2 args\n"); $$ = cons($1, NULL); }
+  args      : expression COMMA args                     { printdebug("1 args\n"); $$ = cons($1, $3); }
+            | expression                                { printdebug("2 args\n"); $$ = cons($1, NULL); }
             ;
-  compare_op: EQ                                        { printdeubg("1 compare_op\n"); }
-            | LT                                        { printdeubg("2 compare_op\n"); }
-            | GT                                        { printdeubg("3 compare_op\n"); }
-            | NE                                        { printdeubg("4 compare_op\n"); }
-            | LE                                        { printdeubg("5 compare_op\n"); }
-            | GE                                        { printdeubg("6 compare_op\n"); }
-            | IN                                        { printdeubg("7 compare_op\n"); }
+  compare_op: EQ                                        { printdebug("1 compare_op\n"); }
+            | LT                                        { printdebug("2 compare_op\n"); }
+            | GT                                        { printdebug("3 compare_op\n"); }
+            | NE                                        { printdebug("4 compare_op\n"); }
+            | LE                                        { printdebug("5 compare_op\n"); }
+            | GE                                        { printdebug("6 compare_op\n"); }
+            | IN                                        { printdebug("7 compare_op\n"); }
             ;
-  sign      : PLUS                                      { printdeubg("1 sign\n"); }
-            | MINUS                                     { printdeubg("2 sign\n"); }
+  sign      : PLUS                                      { printdebug("1 sign\n"); }
+            | MINUS                                     { printdebug("2 sign\n"); }
             ;
-  times_op  : TIMES                                     { printdeubg("1 times_op\n"); }
-            | DIVIDE                                    { printdeubg("2 times_op\n"); }
+  times_op  : TIMES                                     { printdebug("1 times_op\n"); }
+            | DIVIDE                                    { printdebug("2 times_op\n"); }
             ;
 %%
 
@@ -230,27 +230,27 @@ typedef enum {false, true} bool;
        printouts in your routines similar to those that are shown here.     */
 
 TOKEN cons(TOKEN item, TOKEN list) {
-  printdeubg("cons()\n");
+  printdebug("cons()\n");
   item->link = list;
   if (DEBUG) {
-    printdeubg("cons\n");
+    printdebug("cons\n");
     dbugprinttok(item);
     dbugprinttok(list);
   };
-  printdeubg("cons() ends\n");
+  printdebug("cons() ends\n");
   return item;
 }
 
 TOKEN unaryop(TOKEN op, TOKEN lhs) {
-  printdeubg("unaryop()\n");
+  printdebug("unaryop()\n");
   op->operands = lhs;
   lhs->link = NULL;
-  printdeubg("unaryop() ends\n");
+  printdebug("unaryop() ends\n");
   return op;
 }
 
 TOKEN binop(TOKEN op, TOKEN lhs, TOKEN rhs) { 
-  printdeubg("binop()\n");
+  printdebug("binop()\n");
   op->operands = lhs;          /* link operands to operator       */
   lhs->link = rhs;             /* link second operand to first    */
   rhs->link = NULL;            /* terminate operand list          */
@@ -259,12 +259,12 @@ TOKEN binop(TOKEN op, TOKEN lhs, TOKEN rhs) {
     dbugprinttok(lhs);
     dbugprinttok(rhs);
   }
-  printdeubg("binop() ends\n");
+  printdebug("binop() ends\n");
   return op;
 }
 
 TOKEN findid(TOKEN tok){
-  printdeubg("findid()\n");
+  printdebug("findid()\n");
   SYMBOL sym, typ;
   sym = searchst(tok->stringval);
 
@@ -292,12 +292,12 @@ TOKEN findid(TOKEN tok){
     dbugprinttok(tok);
   }
 
-  printdeubg("findid() ends\n");
+  printdebug("findid() ends\n");
   return tok;
 }
 
 void instvars(TOKEN id_list, TOKEN typetok) {
-  printdeubg("instvars() \n");
+  printdebug("instvars() \n");
 
   SYMBOL sym, typesym;
   typesym = typetok->symtype;
@@ -319,11 +319,11 @@ void instvars(TOKEN id_list, TOKEN typetok) {
     sym->basicdt = typesym->basicdt;
     id_list = id_list->link;
   }
-  printdeubg("instvars() ends\n");
+  printdebug("instvars() ends\n");
 }
 
 void instconst(TOKEN idtok, TOKEN consttok) {
-  printdeubg("instconst()\n");
+  printdebug("instconst()\n");
 
   SYMBOL sym, typesym;
   
@@ -347,11 +347,11 @@ void instconst(TOKEN idtok, TOKEN consttok) {
     dbugprinttok(idtok);
     dbugprinttok(consttok);
   }
-  printdeubg("instconst() ends\n");
+  printdebug("instconst() ends\n");
 }
 
 TOKEN makeif(TOKEN tok, TOKEN exp, TOKEN thenpart, TOKEN elsepart) {
-  printdeubg("makeif()\n");
+  printdebug("makeif()\n");
   tok->tokentype = OPERATOR; /* Make it look like an operator   */
   tok->whichval = IFOP;
   if (elsepart != NULL) elsepart->link = NULL;
@@ -364,49 +364,49 @@ TOKEN makeif(TOKEN tok, TOKEN exp, TOKEN thenpart, TOKEN elsepart) {
     dbugprinttok(thenpart);
     dbugprinttok(elsepart);
   };
-  printdeubg("makeif() ends\n");
+  printdebug("makeif() ends\n");
   return tok;
 }
 
 TOKEN makeprogn(TOKEN tok, TOKEN statements) {
-  printdeubg("makeprogn()\n");
+  printdebug("makeprogn()\n");
   tok->tokentype = OPERATOR;
   tok->whichval = PROGNOP;
   tok->operands = statements;
   if (DEBUG) {
-    printdeubg("makeprogn\n");
+    printdebug("makeprogn\n");
     dbugprinttok(tok);
     dbugprinttok(statements);
     ppexpr(tok);
   };
-  printdeubg("makeprogn() ends\n");
+  printdebug("makeprogn() ends\n");
   return tok;
 }
 
 TOKEN makelabel() {
-  printdeubg("makelabel()\n");
+  printdebug("makelabel()\n");
   TOKEN tok = talloc();
   tok->tokentype = OPERATOR;
   tok->whichval = LABELOP;
   tok->operands = makeintc(labelnumber);
   labelnumber += 1;
-  printdeubg("makelabel() ends\n");
+  printdebug("makelabel() ends\n");
   return tok;
 }
 
 
 TOKEN makegoto(int label) {
-  printdeubg("makegoto()\n");
+  printdebug("makegoto()\n");
   TOKEN gotoTok = talloc();
   gotoTok->tokentype = OPERATOR;
   gotoTok->whichval = GOTOOP;
   gotoTok->operands = makeintc(labelnumber - 1);
-  printdeubg("makegoto() ends\n");
+  printdebug("makegoto() ends\n");
   return gotoTok;
 }
 
 TOKEN makefuncall(TOKEN tok, TOKEN fn, TOKEN args) {
-  printdeubg("makefuncall() with args\n");
+  printdebug("makefuncall() with args\n");
   ppexpr(args);
   tok->tokentype = OPERATOR;
   tok->whichval = FUNCALLOP;
@@ -414,22 +414,22 @@ TOKEN makefuncall(TOKEN tok, TOKEN fn, TOKEN args) {
   fn->link = args;
   tok->operands = fn;
 
-  printdeubg("makefuncall() ends\n");
+  printdebug("makefuncall() ends\n");
   return tok;
 }
 
 TOKEN makeintc(int num) {
-  printdeubg("makeintc()\n");
+  printdebug("makeintc()\n");
   TOKEN intMade = talloc();
   intMade->tokentype = NUMBERTOK;
   intMade->datatype = INTEGER;
   intMade->intval = num;
-  printdeubg("makeintc() ends\n");
+  printdebug("makeintc() ends\n");
   return intMade;
 }
 
 TOKEN makeprogram(TOKEN name, TOKEN args, TOKEN statements) {
-  printdeubg("makeprogram()");
+  printdebug("makeprogram()");
   if(DEBUG){
     printf(" with args:\n\t");
     ppexpr(args);
@@ -451,13 +451,13 @@ TOKEN makeprogram(TOKEN name, TOKEN args, TOKEN statements) {
   tmpArgs->operands = args;
   tmpArgs->link = statements;
   
-  printdeubg("makeprogram() ends\n");
+  printdebug("makeprogram() ends\n");
   return program;
 }
 
 TOKEN makefor(int sign, TOKEN tok, TOKEN asg, TOKEN tokb, TOKEN endexpr, TOKEN tokc, TOKEN statement) {
 
-  printdeubg("makefor()\n\t");
+  printdebug("makefor()\n\t");
 
   tok->tokentype = OPERATOR;
   tok->whichval = PROGNOP;
@@ -533,7 +533,7 @@ TOKEN makefor(int sign, TOKEN tok, TOKEN asg, TOKEN tokb, TOKEN endexpr, TOKEN t
   tokA->operands = tokB;
   
   if (DEBUG){ 
-    printdeubg("makefor\n");
+    printdebug("makefor\n");
     dbugprinttok(tok);
     dbugprinttok(asg);
     dbugprinttok(tokb);
@@ -543,13 +543,13 @@ TOKEN makefor(int sign, TOKEN tok, TOKEN asg, TOKEN tokb, TOKEN endexpr, TOKEN t
     ppexpr(tok);
   };
    
-  printdeubg("makefor() ends\n");
+  printdebug("makefor() ends\n");
   return tok;
 
 }
 
 TOKEN makerepeat(TOKEN tok, TOKEN statements, TOKEN tokxzczxv, TOKEN expr) {
-  printdeubg("makerepeat() \n");
+  printdebug("makerepeat() \n");
 
   TOKEN tok1 = talloc();
   tok1->tokentype = OPERATOR;
@@ -569,7 +569,7 @@ TOKEN makerepeat(TOKEN tok, TOKEN statements, TOKEN tokxzczxv, TOKEN expr) {
   tok2->operands = tok3;
   tok2->link= statements; 
   if (DEBUG) {
-    printdeubg("this is what tok1 looks like after making the correction: \n");
+    printdebug("this is what tok1 looks like after making the correction: \n");
     ppexpr(tok1);
   }
   
@@ -598,33 +598,33 @@ TOKEN makerepeat(TOKEN tok, TOKEN statements, TOKEN tokxzczxv, TOKEN expr) {
   tok6->operands = tok7;
 
   if(DEBUG){
-    printdeubg("tok1 is: \n");
+    printdebug("tok1 is: \n");
     ppexpr(tok1);
   }
-  printdeubg("makerepeat() ends \n");
+  printdebug("makerepeat() ends \n");
   return tok1;
 }
 
 TOKEN findtype(TOKEN tok) {
-  printdeubg("findtype() \n");
+  printdebug("findtype() \n");
 
   SYMBOL sym;
   sym = searchst(tok->stringval); 
   
   if(sym->kind == TYPESYM){
-    printdeubg("findtype() TYPESYM \n");
+    printdebug("findtype() TYPESYM \n");
     tok->symtype = sym->datatype;
   }
   else if(sym->kind == BASICTYPE ) {
-    printdeubg("findtype() BASICTYPE \n");
+    printdebug("findtype() BASICTYPE \n");
     tok->symtype = sym; 
     tok->datatype = sym->basicdt;    
   }
   else{
-    printdeubg("findtype() found an error \n");
+    printdebug("findtype() found an error \n");
   }
 
-  printdeubg("findtype() ends\n");
+  printdebug("findtype() ends\n");
   return tok;
 }
 
@@ -637,17 +637,17 @@ TOKEN findtype(TOKEN tok) {
 */
 
 TOKEN nconc(TOKEN lista, TOKEN listb){
-  printdeubg("nconc() \n");
+  printdebug("nconc() \n");
   TOKEN tmp = lista;
   while( tmp->link )
     tmp = tmp->link;
   tmp->link = listb;
-  printdeubg("nconc() ends\n");
+  printdebug("nconc() ends\n");
   return lista;
   
 }
 TOKEN makewhile(TOKEN tok, TOKEN expr, TOKEN tokb, TOKEN statement) {
-  printdeubg("makewhile() \n");
+  printdebug("makewhile() \n");
   TOKEN labeltok = talloc();
   labeltok->tokentype = OPERATOR;
   labeltok->whichval = LABELOP;
@@ -678,13 +678,13 @@ TOKEN makewhile(TOKEN tok, TOKEN expr, TOKEN tokb, TOKEN statement) {
 
   TOKEN gotonum = copytok(numtok);
   tmp->link = unaryop(gototok, gotonum);
-  printdeubg("makewhile() ends\n");
+  printdebug("makewhile() ends\n");
   return progntok;
 
 }
 TOKEN reducedot(TOKEN var, TOKEN dot, TOKEN field) {
   
-  printdeubg("reducedot() \n");
+  printdebug("reducedot() \n");
   SYMBOL record = var->symtype;
   bool ispointer = false;
   // if(var->link != NULL)
@@ -732,13 +732,13 @@ TOKEN reducedot(TOKEN var, TOKEN dot, TOKEN field) {
 
   dot->symtype = skiptype(record->datatype);
   
-  printdeubg("reducedot() ends \n");
+  printdebug("reducedot() ends \n");
   return dot;
 
 }
 TOKEN arrayref(TOKEN arr, TOKEN tok, TOKEN subs, TOKEN tokb) {
   
-  printdeubg("arrayref() \n");
+  printdebug("arrayref() \n");
   int index = 0;
   int offset = 0;
   SYMBOL array = arr->symtype;
@@ -771,43 +771,43 @@ TOKEN arrayref(TOKEN arr, TOKEN tok, TOKEN subs, TOKEN tokb) {
   ret->operands->link = offsetTok;
   ret->symtype = array;
 
-  printdeubg("arrayref() ends\n");
+  printdebug("arrayref() ends\n");
   return ret;
 
 }
 SYMBOL skiptype(SYMBOL sym) {
   
-  printdeubg("skiptype() \n");
+  printdebug("skiptype() \n");
   while(sym->kind == TYPESYM) {
     sym = sym->datatype;
   }
-  printdeubg("skiptype() ends\n");
+  printdebug("skiptype() ends\n");
   return sym;
 
 }
 TOKEN copytok(TOKEN tok) {
-  printdeubg("copytok() \n");
+  printdebug("copytok() \n");
   TOKEN ret = talloc();
   *ret = *tok;
   ret->operands = NULL;
   ret->link = NULL;
 
-  printdeubg("copytok() \n");
+  printdebug("copytok() \n");
   return ret;
 
 }
 TOKEN createtok(int what, int which) {
   
-  printdeubg("createtok() \n");
+  printdebug("createtok() \n");
   TOKEN ret = talloc();
   ret->tokentype = what;
   ret->whichval = which;
-  printdeubg("createtok() \n");
+  printdebug("createtok() \n");
   return ret;
 
 }
 TOKEN instrec(TOKEN rectok, TOKEN argstok) {
-  printdeubg("instrec() \n");
+  printdebug("instrec() \n");
 
   //printf("installing record into symbol table...\n");
   SYMBOL tmptab[50];
@@ -855,16 +855,16 @@ TOKEN instrec(TOKEN rectok, TOKEN argstok) {
   record->datatype = first;
   record->size = size;
   rectok->symtype = record;     
-  printdeubg("instrec() ends \n");
+  printdebug("instrec() ends \n");
   return rectok;
 
 }
 TOKEN dopoint(TOKEN var, TOKEN tok) {
-  printdeubg("dopoint() ERROR \n");
+  printdebug("dopoint() ERROR \n");
 }
 TOKEN instfields(TOKEN idlist, TOKEN typetok) {
   
-  printdeubg("instfields() ERROR \n");
+  printdebug("instfields() ERROR \n");
   TOKEN tmp = idlist;
   while(tmp){
     tmp->symtype = typetok->symtype;     //connecting each id in list to it's type
@@ -874,12 +874,12 @@ TOKEN instfields(TOKEN idlist, TOKEN typetok) {
   
   printf("\n%s\n", typetok->symtype->namestring);
   
-  printdeubg("instfields() ends \n");
+  printdebug("instfields() ends \n");
   return idlist;
 
 }
 void insttype(TOKEN typename, TOKEN typetok) {
-  printdeubg("insttype() \n");
+  printdebug("insttype() \n");
 
   SYMBOL tmp = searchst(typename->stringval);
   if(tmp){
@@ -898,12 +898,12 @@ void insttype(TOKEN typename, TOKEN typetok) {
     typesym->basicdt = typetok->symtype->basicdt;
   }
   
-  printdeubg("insttype() ends \n");
+  printdebug("insttype() ends \n");
 
 }
 TOKEN instpoint(TOKEN tok, TOKEN typename) {
   
-  printdeubg("instpoint() \n");
+  printdebug("instpoint() \n");
   
   SYMBOL tsym = searchst(typename->stringval);
   if(DEBUG)
@@ -925,7 +925,7 @@ TOKEN instpoint(TOKEN tok, TOKEN typename) {
   if(DEBUG)
     printf("%d\n", tok->symtype->size);
 
-  printdeubg("instpoint() ends \n");
+  printdebug("instpoint() ends \n");
   return tok;
 
 }
@@ -938,7 +938,7 @@ TOKEN instpoint(TOKEN tok, TOKEN typename) {
   *
 */
 
-void printdeubg (char arr[]) {
+void printdebug (char arr[]) {
   
   char array[sizeof(arr) + 1];
   int i = 0;

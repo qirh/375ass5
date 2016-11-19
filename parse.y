@@ -221,7 +221,7 @@ TOKEN parseresult;
    are working.
   */
 
-#define DEBUG 0
+#define DEBUG 2
 
  int labelnumber = 0;  /* sequential counter for internal label numbers */
 
@@ -627,7 +627,14 @@ TOKEN findtype(TOKEN tok) {
   return tok;
 }
 
-//assignment5
+/*
+  *
+  *
+  *     ASSIGNMENT 5
+  *
+  *
+*/
+
 TOKEN nconc(TOKEN lista, TOKEN listb){
   printdeubg("nconc() \n");
   TOKEN tmp = lista;
@@ -675,7 +682,58 @@ TOKEN makewhile(TOKEN tok, TOKEN expr, TOKEN tokb, TOKEN statement) {
 
 }
 TOKEN reducedot(TOKEN var, TOKEN dot, TOKEN field) {
-  printdeubg("reducedot() ERROR\n");
+  
+  printdeubg("reducedot() \n");
+  SYMBOL record = var->symtype;
+  bool ispointer = false;
+  // if(var->link != NULL)
+
+  /* Skip to the pointer's RECORDSYM symbol */
+  if(record->kind == POINTERSYM) {
+    record = record->datatype;
+    record = skipTypes(record);
+    ispointer = true;
+  }
+  int oldOffset = 0;
+  bool reuse = false;
+
+  /* OPTIMIZATION : Combine aref's whose offsets are constant numbers */
+  if(!ispointer && var->tokentype == OPERATOR && var->whichval == AREFOP && var->operands->link->tokentype == NUMBERTOK) {
+    dot = var;
+    oldOffset = var->operands->link->intval;
+    reuse = true;
+  }
+
+  else {
+    dot = createtok(OPERATOR,AREFOP);
+  }
+
+  /* Move to the first record entry */
+  record = record->datatype;
+  // printf("Reduce Dot %s\n", record->namestring);
+
+  while(record != NULL && strcmp(field->stringval, record->namestring)) {
+    record = record->link;
+  }
+
+  dot->datatype = record->basicdt;
+  int offset = record->offset + oldOffset;
+
+  if(!ispointer && offset == 0) {
+    return var;
+  }
+
+  if(!reuse) {
+    dot->operands = var;
+  }
+
+  dot->operands->link = constant(offset);
+
+  dot->symtype = skipTypes(record->datatype);
+  
+  printdeubg("reducedot() ends \n");
+  return dot;
+
 }
 TOKEN arrayref(TOKEN arr, TOKEN tok, TOKEN subs, TOKEN tokb) {
   
@@ -748,8 +806,57 @@ TOKEN createtok(int what, int which) {
 
 }
 TOKEN instrec(TOKEN rectok, TOKEN argstok) {
-  printdeubg("instrec() ERROR \n");
+  printdeubg("instrec() \n");
+
+  //printf("installing record into symbol table...\n");
+  SYMBOL temptab[50];
+  TOKEN temp = argstok;
+  while(temp){
+    //printf("%s: %s, ", temp->stringval, temp->symtype->namestring);
+    temp = temp->link;
   }
+  //printf("\n");
+  SYMBOL temptable[50];               //hold the symbols temporarily
+  SYMBOL record = makesym("");
+  record->kind = RECORDSYM;
+  int size = 0;
+  SYMBOL sym, typesym; int align;
+  //accumulate size of each field and store in recordsym
+  temp = argstok;
+  SYMBOL first;
+  typesym = temp->symtype;
+  align = alignsize(typesym);
+  int index = 0;
+  while(temp){
+    sym = makesym(temp->stringval);
+    if(index == 0)
+      first = sym;
+    sym->datatype = temp->symtype;
+    sym->offset += size;
+    sym->size = temp->symtype->size;
+    //add padding
+    if((size % 8 != 0) && (temp->symtype->size == 8)){
+      size += 4;
+    }   
+    size += temp->symtype->size;
+    temptab[index] = sym;           //insert so you can link together later
+    temp = temp->link;
+    //printf("NAME: %s, DATATYPE: %s, OFFSET: %d, SIZE: %d\n", sym->namestring, sym->datatype->namestring, sym->offset, sym->size);
+    index++;
+  }
+  
+  int i = 0;
+  for(; i < index - 1; i++){
+    temptab[i]->link = temptab[i+1];
+  }
+  
+  record->datatype = first;
+  record->size = size;
+  rectok->symtype = record;     
+  printdeubg("instrec() ends \n");
+  return rectok;
+
+}
 TOKEN dopoint(TOKEN var, TOKEN tok) {
   printdeubg("dopoint() ERROR \n");
 }
@@ -760,8 +867,38 @@ void  insttype(TOKEN typename, TOKEN typetok) {
   printdeubg("insttype() ERROR \n");
 }
 TOKEN instpoint(TOKEN tok, TOKEN typename) {
-  printdeubg("instpoint() ERROR \n");
+  
+  printdeubg("instpoint() \n");
+  
+  SYMBOL tsym = searchst(typename->stringval);
+  printdeubg("%s\n", typename->stringval);
+  SYMBOL temp = insertsym(typename->stringval);
+  temp->kind = TYPESYM;
+  
+  
+  SYMBOL pointersym = makesym(typename->stringval);   
+  pointersym->kind = POINTERSYM;
+  pointersym->datatype = temp;
+  pointersym->size = basicsizes[POINTER];
+  pointersym->basicdt = POINTER;
+  printdeubg("POINTER = %d\n", POINTER);
+  
+  tok->symtype = pointersym;
+  
+  
+  printdeubg("%d\n", tok->symtype->size);
+  printdeubg("instpoint() ends \n");
+  return tok;
+
 }
+
+/*
+  *
+  *
+  *     ORIGINAL CODE
+  *
+  *
+*/
 
 void printdeubg (char arr[]) {
   

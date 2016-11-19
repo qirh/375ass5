@@ -113,8 +113,8 @@ TOKEN parseresult;
             | sign IDENTIFIER                           { printdebug("5 constant\n"); }
             ;
   simple_type: IDENTIFIER                               { printdebug("1 simple_type\n"); $$ = findtype($1); }
-            | LPAREN id_list RPAREN                     { printdebug("2 simple_type ERROR\n"); $$ = NULL; }
-            | NUMBER DOTDOT NUMBER                      { printdebug("3 simple_type ERROR\n"); $$ = NULL; }
+            | LPAREN id_list RPAREN                     { printdebug("2 simple_type\n"); $$ = instenum($2); }
+            | NUMBER DOTDOT NUMBER                      { printdebug("3 simple_type\n"); $$ = makesubrange($2, $1->intval, $3->intval);; }
             ;
   simple_type_list : simple_type COMMA simple_type_list { printdebug("1 simple_type_list\n"); $$ = cons($3, $1); }
                    | simple_type                        { printdebug("2 simple_type_list\n"); }

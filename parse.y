@@ -101,7 +101,7 @@ TOKEN parseresult;
             ; 
   fields    : id_list COLON type                        { printdebug("1 field\n"); $$ = instfields($1, $3); }
             ;
-  field_list: fields SEMICOLON field_list               { printdebug("1 field_list\n"); $$ = nconc($1,$3); }
+  field_list: fields COLON field_list               { printdebug("1 field_list\n"); $$ = nconc($1,$3); }
             | fields                                    { printdebug("2 field_list\n"); }
             ;
   constant  : IDENTIFIER                                { printdebug("1 constant\n"); }
@@ -144,7 +144,7 @@ TOKEN parseresult;
             | vdef                                      { printdebug("2 vdef_list\n"); }
             | vdef SEMICOLON                            { printdebug("3 vdef_list\n"); }
             ;
-  vblock    : VAR vdef_list block                       { printdebug("1 vblock\n"); $$ = $3; }
+  vblock    : VAR vdef_list block                       { printdebug("*******1 vblock\n"); $$ = $3; }
             | block                                     { printdebug("2 vblock\n"); }
             ; 
   funcall   : IDENTIFIER LPAREN expr_list RPAREN        { printdebug("1 funcall\n"); $$ = makefuncall(talloc(), $1, $3); }

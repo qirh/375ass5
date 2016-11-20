@@ -96,10 +96,8 @@ TOKEN parseresult;
             | POINT IDENTIFIER                          { printdebug("3 type\n"); $$ = instpoint($1, $2);; }
             | RECORD field_list END                     { printdebug("4 type\n"); $$ = instrec($1, $2); }      
             ;  
-  label_list: num_list                                  { printdebug("1 label_list\n"); makelabel($1); }
-            ; 
-  num_list  : NUMBER COMMA num_list                     { printdebug("1 num_list\n"); $$ = cons($1, $3); }
-            | NUMBER                                    { printdebug("2 num_list\n"); }
+  num_list  : NUMBER COMMA num_list                     { printdebug("1 num_list\n"); instlabel($1); }
+            | NUMBER                                    { printdebug("2 num_list\n"); instlabel($1); }
             ; 
   fields    : id_list COLON type                        { printdebug("1 fields\n");  }
             ;
@@ -137,7 +135,7 @@ TOKEN parseresult;
   tblock    : TYPE tdef_list vblock                     { printdebug("1 tblock\n"); $$ = $3; }
             | vblock                                    { printdebug("2 tblock\n"); }
             ;
-  lblock    : LABEL label_list SEMICOLON cblock         { printdebug("1 lblock\n"); $$ = $4; }
+  lblock    : LABEL num_list SEMICOLON cblock           { printdebug("1 lblock\n"); $$ = $4; }
             | cblock                                    { printdebug("2 lblock\n"); }
             ;
   vdef      : id_list COLON type                        { printdebug("1 vdef\n"); instvars($1, $3); printdebug("1 vdef end\n"); }
@@ -152,7 +150,7 @@ TOKEN parseresult;
   funcall   : IDENTIFIER LPAREN expr_list RPAREN        { printdebug("1 funcall\n"); $$ = makefuncall(talloc(), $1, $3); }
             ;
   statement : BEGINBEGIN statement endpart              { printdebug("1 statement\n"); $$ = makeprogn($1, cons($2, $3)); }
-            | NUMBER COLON statement                    { printdebug("2 statement\n"); $$ = NULL; }
+            | NUMBER COLON statement                    { printdebug("2 statement\n"); $$ = dolabel($1, $2, $3); }
             | assignment                                { printdebug("3 statement\n"); }
             | funcall                                   { printdebug("4 statement\n"); }
             | IF expression THEN statement endif        { printdebug("5 statement\n"); $$ = makeif($1, $2, $4, $5); }
@@ -223,8 +221,8 @@ TOKEN parseresult;
 
 #define DEBUG 2
 typedef enum {false, true} bool;
-
- int labelnumber = 0;  /* sequential counter for internal label numbers */
+int labels[50]          //max labels
+int labelnumber = 0;  /* sequential counter for internal label numbers */
 
    /*  Note: you should add to the above values and insert debugging
        printouts in your routines similar to those that are shown here.     */
@@ -237,7 +235,7 @@ TOKEN cons(TOKEN item, TOKEN list) {
     dbugprinttok(item);
     dbugprinttok(list);
   };
-  printdebug("cons() ends\n");
+  printdebug("cons() ends \n\n");
   return item;
 }
 
@@ -245,7 +243,7 @@ TOKEN unaryop(TOKEN op, TOKEN lhs) {
   printdebug("unaryop()\n");
   op->operands = lhs;
   lhs->link = NULL;
-  printdebug("unaryop() ends\n");
+  printdebug("unaryop() ends \n\n");
   return op;
 }
 
@@ -259,7 +257,7 @@ TOKEN binop(TOKEN op, TOKEN lhs, TOKEN rhs) {
     dbugprinttok(lhs);
     dbugprinttok(rhs);
   }
-  printdebug("binop() ends\n");
+  printdebug("binop() ends \n\n");
   return op;
 }
 
@@ -292,7 +290,7 @@ TOKEN findid(TOKEN tok){
     dbugprinttok(tok);
   }
 
-  printdebug("findid() ends\n");
+  printdebug("findid() ends \n\n");
   return tok;
 }
 
@@ -319,7 +317,7 @@ void instvars(TOKEN id_list, TOKEN typetok) {
     sym->basicdt = typesym->basicdt;
     id_list = id_list->link;
   }
-  printdebug("instvars() ends\n");
+  printdebug("instvars() ends \n\n");
 }
 
 void instconst(TOKEN idtok, TOKEN consttok) {
@@ -347,7 +345,7 @@ void instconst(TOKEN idtok, TOKEN consttok) {
     dbugprinttok(idtok);
     dbugprinttok(consttok);
   }
-  printdebug("instconst() ends\n");
+  printdebug("instconst() ends \n\n");
 }
 
 TOKEN makeif(TOKEN tok, TOKEN exp, TOKEN thenpart, TOKEN elsepart) {
@@ -364,7 +362,7 @@ TOKEN makeif(TOKEN tok, TOKEN exp, TOKEN thenpart, TOKEN elsepart) {
     dbugprinttok(thenpart);
     dbugprinttok(elsepart);
   };
-  printdebug("makeif() ends\n");
+  printdebug("makeif() ends \n\n");
   return tok;
 }
 
@@ -379,10 +377,10 @@ TOKEN makeprogn(TOKEN tok, TOKEN statements) {
     dbugprinttok(statements);
     ppexpr(tok);
   };
-  printdebug("makeprogn() ends\n");
+  printdebug("makeprogn() ends \n\n");
   return tok;
 }
-
+/*
 TOKEN makelabel() {
   printdebug("makelabel()\n");
   TOKEN tok = talloc();
@@ -390,10 +388,10 @@ TOKEN makelabel() {
   tok->whichval = LABELOP;
   tok->operands = makeintc(labelnumber);
   labelnumber += 1;
-  printdebug("makelabel() ends\n");
+  printdebug("makelabel() ends \n\n");
   return tok;
 }
-
+*/
 
 TOKEN makegoto(int label) {
   printdebug("makegoto()\n");
@@ -401,7 +399,7 @@ TOKEN makegoto(int label) {
   gotoTok->tokentype = OPERATOR;
   gotoTok->whichval = GOTOOP;
   gotoTok->operands = makeintc(labelnumber - 1);
-  printdebug("makegoto() ends\n");
+  printdebug("makegoto() ends \n\n");
   return gotoTok;
 }
 
@@ -414,7 +412,7 @@ TOKEN makefuncall(TOKEN tok, TOKEN fn, TOKEN args) {
   fn->link = args;
   tok->operands = fn;
 
-  printdebug("makefuncall() ends\n");
+  printdebug("makefuncall() ends \n\n");
   return tok;
 }
 
@@ -424,7 +422,7 @@ TOKEN makeintc(int num) {
   intMade->tokentype = NUMBERTOK;
   intMade->datatype = INTEGER;
   intMade->intval = num;
-  printdebug("makeintc() ends\n");
+  printdebug("makeintc() ends \n\n");
   return intMade;
 }
 
@@ -451,13 +449,13 @@ TOKEN makeprogram(TOKEN name, TOKEN args, TOKEN statements) {
   tmpArgs->operands = args;
   tmpArgs->link = statements;
   
-  printdebug("makeprogram() ends\n");
+  printdebug("makeprogram() ends \n\n");
   return program;
 }
 
 TOKEN makefor(int sign, TOKEN tok, TOKEN asg, TOKEN tokb, TOKEN endexpr, TOKEN tokc, TOKEN statement) {
 
-  printdebug("makefor()\n\t");
+  printdebug("makefor() \n\t");
 
   tok->tokentype = OPERATOR;
   tok->whichval = PROGNOP;
@@ -543,7 +541,7 @@ TOKEN makefor(int sign, TOKEN tok, TOKEN asg, TOKEN tokb, TOKEN endexpr, TOKEN t
     ppexpr(tok);
   };
    
-  printdebug("makefor() ends\n");
+  printdebug("makefor() ends \n\n");
   return tok;
 
 }
@@ -612,19 +610,19 @@ TOKEN findtype(TOKEN tok) {
   sym = searchst(tok->stringval); 
   
   if(sym->kind == TYPESYM){
-    printdebug("findtype() TYPESYM \n");
+    //printdebug("TYPESYM \n");
     tok->symtype = sym->datatype;
   }
   else if(sym->kind == BASICTYPE ) {
-    printdebug("findtype() BASICTYPE \n");
+    //printdebug("BASICTYPE \n");
     tok->symtype = sym; 
     tok->datatype = sym->basicdt;    
   }
   else{
-    printdebug("findtype() found an error \n");
+    printdebug("findtype() ERROR \n");
   }
 
-  printdebug("findtype() ends\n");
+  printdebug("findtype() ends \n\n");
   return tok;
 }
 
@@ -642,7 +640,7 @@ TOKEN nconc(TOKEN lista, TOKEN listb){
   while( tmp->link )
     tmp = tmp->link;
   tmp->link = listb;
-  printdebug("nconc() ends\n");
+  printdebug("nconc() ends \n\n");
   return lista;
   
 }
@@ -678,7 +676,7 @@ TOKEN makewhile(TOKEN tok, TOKEN expr, TOKEN tokb, TOKEN statement) {
 
   TOKEN gotonum = copytok(numtok);
   tmp->link = unaryop(gototok, gotonum);
-  printdebug("makewhile() ends\n");
+  printdebug("makewhile() ends \n\n");
   return progntok;
 
 }
@@ -771,7 +769,7 @@ TOKEN arrayref(TOKEN arr, TOKEN tok, TOKEN subs, TOKEN tokb) {
   ret->operands->link = offsetTok;
   ret->symtype = array;
 
-  printdebug("arrayref() ends\n");
+  printdebug("arrayref() ends \n\n");
   return ret;
 
 }
@@ -781,7 +779,7 @@ SYMBOL skiptype(SYMBOL sym) {
   while(sym->kind == TYPESYM) {
     sym = sym->datatype;
   }
-  printdebug("skiptype() ends\n");
+  printdebug("skiptype() ends \n\n");
   return sym;
 
 }
@@ -792,7 +790,7 @@ TOKEN copytok(TOKEN tok) {
   ret->operands = NULL;
   ret->link = NULL;
 
-  printdebug("copytok() \n");
+  printdebug("copytok() ends \n\n");
   return ret;
 
 }
@@ -802,7 +800,7 @@ TOKEN createtok(int what, int which) {
   TOKEN ret = talloc();
   ret->tokentype = what;
   ret->whichval = which;
-  printdebug("createtok() \n");
+  printdebug("createtok() ends \n\n");
   return ret;
 
 }
@@ -897,7 +895,7 @@ void insttype(TOKEN typename, TOKEN typetok) {
     typesym->basicdt = typetok->symtype->basicdt;
   }
 
-  printdebug("insttype() ends \n\n\n");
+  printdebug("insttype() ends \n\n");
 
 }
 TOKEN instpoint(TOKEN tok, TOKEN typename) {
@@ -968,6 +966,33 @@ TOKEN makesubrange(TOKEN tok, int low, int high){
   printdebug("makesubrange() ends \n\n");
   return tok;
 
+}
+TOKEN dolabel(TOKEN labeltok, TOKEN tok, TOKEN statement){
+  printdebug("dolabel() \n");
+  TOKEN progn = makeprogn(tok, statement);
+  TOKEN label = talloc();
+  label->tokentype = OPERATOR;
+  label->whichval = LABELOP;
+  label->operands = labeltok;
+  //replace number with internal lable
+  int i = 0;
+  while(labels[i] != labeltok->intval)
+    i++;
+  labeltok->intval = i;
+  progn->operands = label;
+  label->link = statement;
+  printdebug("dolabel() ends \n\n");
+  return progn;
+
+}
+void  instlabel (TOKEN num) {
+  printdebug("instlabel() \n");
+  labels[labelnumber++] = num->intval;
+  int i = 0;
+  for(; i < labelnumber; i++){
+    printf("%d\n", labels[i]);
+  }
+  printdebug("instlabel() ends \n\n");
 }
 
 /*

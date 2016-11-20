@@ -101,7 +101,7 @@ TOKEN parseresult;
             ; 
   fields    : id_list COLON type                        { printdebug("1 field\n"); $$ = instfields($1, $3); }
             ;
-  field_list: fields COLON field_list               { printdebug("1 field_list\n"); $$ = nconc($1,$3); }
+  field_list: fields COLON field_list                   { printdebug("1 field_list\n"); $$ = nconc($1,$3); }
             | fields                                    { printdebug("2 field_list\n"); }
             ;
   constant  : IDENTIFIER                                { printdebug("1 constant\n"); }

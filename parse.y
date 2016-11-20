@@ -99,10 +99,10 @@ TOKEN parseresult;
   num_list  : NUMBER COMMA num_list                     { printdebug("1 num_list\n"); instlabel($1); }
             | NUMBER                                    { printdebug("2 num_list\n"); instlabel($1); }
             ; 
-  fields    : id_list COLON type                        { printdebug("1 fields\n");  }
+  field     : id_list COLON type                        { printdebug("1 field\n"); $$ = instfields($1, $3) }
             ;
-  field_list: fields SEMICOLON field_list               { printdebug("1 field_list\n"); $$ = nconc($1,$3); }
-            | id_list COLON type                        { printdebug("2 field_list\n"); instfields($1, $3); }
+  field_list: field SEMICOLON field_list                { printdebug("1 field_list\n"); $$ = nconc($1,$3); }
+            | field                                     { printdebug("2 field_list\n"); }
             ;
   constant  : IDENTIFIER                                { printdebug("1 constant\n"); }
             | NUMBER                                    { printdebug("2 constant\n"); }

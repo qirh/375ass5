@@ -1000,39 +1000,28 @@ void  instlabel (TOKEN num) {
   printdebug("instlabel() ends \n\n");
 }
 TOKEN instarray(TOKEN bounds, TOKEN typetok){
-  
-  //printf("installing array with bounds %d .. %d\n", bounds->symtype->lowbound, bounds->symtype->highbound);
-  //need to point typetok to the symbol for the type of array
+
+  printdebug("instarray() \n");
   SYMBOL array = makesym("array");
   array->kind = ARRAYSYM;
   array->datatype = typetok->symtype;
   array->highbound = bounds->symtype->highbound;
   array->lowbound = bounds->symtype->lowbound;
   int size = array->datatype->size * (array->highbound - array->lowbound + 1);
-  //printf("array size = %d\n", size);
   array->size = size;
-  //this works for only 2 dimensional arrays right now. DO inner arrays first!!!
   TOKEN second_array;
   if(bounds->link){
-    //create another array for the next dimension
-    //printf("creating second array\n");
-    //printf("second bounds are %d .. %d\n", bounds->link->symtype->datatype->lowbound, bounds->link->symtype->datatype->highbound);
-    //these are the correct bounds
     int high = bounds->link->symtype->datatype->highbound;
     int low = bounds->link->symtype->datatype->lowbound;
-    //printf("new high: %d, new low: %d\n", high, low);
-    TOKEN subrange = makesubrange(copytoken(typetok), low, high);
+    TOKEN subrange = makesubrange(copytok(typetok), low, high);
     second_array = instarray(subrange, typetok);
     array->datatype = second_array->symtype;
-    //update size
     array->size = array->datatype->size * (array->highbound - array->lowbound + 1);
   }
-  
-  
-  
-  
   typetok->symtype = array;
+  printdebug("instarray() ends \n\n");
   return typetok;
+
 }
 
 /*

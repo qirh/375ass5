@@ -92,17 +92,17 @@ TOKEN parseresult;
             | IDENTIFIER                                { printdebug("2 id_list\n"); $$ = cons($1, NULL); }
             ;  
   type      : simple_type                               { printdebug("1 type\n"); }
-            | ARRAY LBRACKET simple_type_list RBRACKET OF type { printdebug("2 type\n"); $$ = NULL; }
+            | ARRAY LBRACKET simple_type_list RBRACKET OF type { printdebug("2 type\n"); $$ = instarray($3, $6); }
             | POINT IDENTIFIER                          { printdebug("3 type\n"); $$ = instpoint($1, $2);; }
             | RECORD field_list END                     { printdebug("4 type\n"); $$ = instrec($1, $2); }      
             ;  
   num_list  : NUMBER COMMA num_list                     { printdebug("1 num_list\n"); instlabel($1); }
             | NUMBER                                    { printdebug("2 num_list\n"); instlabel($1); }
             ; 
-  field     : id_list COLON type                        { printdebug("1 field\n"); $$ = instfields($1, $3); }
+  fields    : id_list COLON type                        { printdebug("1 field\n"); $$ = instfields($1, $3); }
             ;
-  field_list: field SEMICOLON field_list                { printdebug("1 field_list\n"); $$ = nconc($1,$3); }
-            | field                                     { printdebug("2 field_list\n"); }
+  field_list: fields SEMICOLON field_list               { printdebug("1 field_list\n"); $$ = nconc($1,$3); }
+            | fields                                    { printdebug("2 field_list\n"); }
             ;
   constant  : IDENTIFIER                                { printdebug("1 constant\n"); }
             | NUMBER                                    { printdebug("2 constant\n"); }
@@ -998,6 +998,41 @@ void  instlabel (TOKEN num) {
     printf("%d\n", labels[i]);
   }
   printdebug("instlabel() ends \n\n");
+}
+TOKEN instarray(TOKEN bounds, TOKEN typetok){
+  
+  //printf("installing array with bounds %d .. %d\n", bounds->symtype->lowbound, bounds->symtype->highbound);
+  //need to point typetok to the symbol for the type of array
+  SYMBOL array = makesym("array");
+  array->kind = ARRAYSYM;
+  array->datatype = typetok->symtype;
+  array->highbound = bounds->symtype->highbound;
+  array->lowbound = bounds->symtype->lowbound;
+  int size = array->datatype->size * (array->highbound - array->lowbound + 1);
+  //printf("array size = %d\n", size);
+  array->size = size;
+  //this works for only 2 dimensional arrays right now. DO inner arrays first!!!
+  TOKEN second_array;
+  if(bounds->link){
+    //create another array for the next dimension
+    //printf("creating second array\n");
+    //printf("second bounds are %d .. %d\n", bounds->link->symtype->datatype->lowbound, bounds->link->symtype->datatype->highbound);
+    //these are the correct bounds
+    int high = bounds->link->symtype->datatype->highbound;
+    int low = bounds->link->symtype->datatype->lowbound;
+    //printf("new high: %d, new low: %d\n", high, low);
+    TOKEN subrange = makesubrange(copytoken(typetok), low, high);
+    second_array = instarray(subrange, typetok);
+    array->datatype = second_array->symtype;
+    //update size
+    array->size = array->datatype->size * (array->highbound - array->lowbound + 1);
+  }
+  
+  
+  
+  
+  typetok->symtype = array;
+  return typetok;
 }
 
 /*

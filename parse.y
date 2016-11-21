@@ -1011,7 +1011,9 @@ TOKEN instarray(TOKEN bounds, TOKEN typetok){
   TOKEN second_array;
   printdebug("instarray() 3 \n");
   if(bounds->link){
+    printdebug("instarray() a \n");
     int high = bounds->link->symtype->datatype->highbound;
+    printdebug("instarray() b \n");
     int low = bounds->link->symtype->datatype->lowbound;
     printdebug("instarray() 4 \n");
     TOKEN subrange = makesubrange(copytok(typetok), low, high);

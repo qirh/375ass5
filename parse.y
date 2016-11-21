@@ -1002,6 +1002,7 @@ TOKEN instarray(TOKEN bounds, TOKEN typetok){
 
   printdebug("instarray() \n");
   dbugprinttok(bounds);
+  dbprsymbol(bounds->symtype);
   SYMBOL array = makesym("array");
   array->kind = ARRAYSYM;
   array->datatype = typetok->symtype;

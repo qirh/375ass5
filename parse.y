@@ -142,7 +142,7 @@ TOKEN parseresult;
   lblock    : LABEL num_list SEMICOLON cblock           { printdebug("1 lblock\n"); $$ = $4; }
             | cblock                                    { printdebug("2 lblock\n"); }
             ;
-  vdef      : id_list COLON type                        { printdebug("1 vdef\n"); instvars($1, $3); printdebug("1 vdef end\n"); }
+  vdef      : id_list COLON type                        { printdebug("1 vdef\n"); instvars($1, $3); }
             ;
   vdef_list : vdef SEMICOLON vdef_list                  { printdebug("1 vdef_list\n"); cons($1, $3); }
             | vdef                                      { printdebug("2 vdef_list\n"); }
@@ -614,17 +614,17 @@ TOKEN findtype(TOKEN tok) {
   sym = searchst(tok->stringval); 
   
   if(sym->kind == TYPESYM){
-    //printdebug("TYPESYM \n");
+    printdebug("TYPESYM \n");
     tok->symtype = sym->datatype;
   }
   else if(sym->kind == BASICTYPE ) {
-    //printdebug("BASICTYPE \n");
+    printdebug("BASICTYPE \n");
     tok->symtype = sym; 
     tok->datatype = sym->basicdt;    
   }
-  else{
+  else
     printdebug("findtype() ERROR \n");
-  }
+  
 
   printdebug("findtype() ends \n\n");
   return tok;
@@ -1012,6 +1012,7 @@ TOKEN instarray(TOKEN bounds, TOKEN typetok){
   printdebug("instarray() 3 \n");
   if(bounds->link){
     printdebug("instarray() a \n");
+    dbprsymbol(bounds->link->symtype);
     int high = bounds->link->symtype->datatype->highbound;
     printdebug("instarray() b \n");
     int low = bounds->link->symtype->datatype->lowbound;

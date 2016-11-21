@@ -103,7 +103,8 @@ TOKEN parseresult;
             ;
   field_list: fields SEMICOLON field_list               { printdebug("1 field_list\n"); $$ = nconc($1, $3); }
             | fields                                    { printdebug("2 field_list\n"); }
-            | fields SEMICOLON                          { printdebug("3 field_list\n"); }
+            | fields endpart                            { printdebug("3 field_list\n"); }
+            | fields SEMICOLON                          { printdebug("4 field_list\n"); }
             ;
   constant  : IDENTIFIER                                { printdebug("1 constant\n"); }
             | NUMBER                                    { printdebug("2 constant\n"); }

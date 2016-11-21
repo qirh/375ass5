@@ -1001,8 +1001,8 @@ void  instlabel (TOKEN num) {
 TOKEN instarray(TOKEN bounds, TOKEN typetok){
 
   printdebug("instarray() \n");
-  dbugprinttok(bounds->link);
-  dbprsymbol(bounds->link->symtype);
+  dbugprinttok(bounds);
+  dbprsymbol(bounds->symtype);
   SYMBOL array = makesym("array");
   array->kind = ARRAYSYM;
   array->datatype = typetok->symtype;
@@ -1015,10 +1015,10 @@ TOKEN instarray(TOKEN bounds, TOKEN typetok){
   printdebug("instarray() 3 \n");
   if(bounds->link){
     printdebug("instarray() a \n");
-    dbprsymbol(bounds->link->symtype);
-    int high = bounds->link->symtype->datatype->highbound;
+    dbprsymbol(bounds->symtype);
+    int high = bounds->symtype->datatype->highbound;
     printdebug("instarray() b \n");
-    int low = bounds->link->symtype->datatype->lowbound;
+    int low = bounds->symtype->datatype->lowbound;
     printdebug("instarray() 4 \n");
     TOKEN subrange = makesubrange(copytok(typetok), low, high);
     printdebug("instarray() 5 \n");

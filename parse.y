@@ -1013,12 +1013,16 @@ TOKEN instarray(TOKEN bounds, TOKEN typetok){
   if(bounds->link){
     int high = bounds->link->symtype->datatype->highbound;
     int low = bounds->link->symtype->datatype->lowbound;
+    printdebug("instarray() 4 \n");
     TOKEN subrange = makesubrange(copytok(typetok), low, high);
+    printdebug("instarray() 5 \n");
     second_array = instarray(subrange, typetok);
+    printdebug("instarray() 6 \n");
     array->datatype = second_array->symtype;
+    printdebug("instarray() 7 \n");
     array->size = array->datatype->size * (array->highbound - array->lowbound + 1);
   }
-  printdebug("instarray() 4 \n");
+  printdebug("instarray() 8 \n");
   typetok->symtype = array;
   printdebug("instarray() ends \n\n");
   return typetok;

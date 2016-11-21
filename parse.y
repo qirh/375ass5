@@ -1003,11 +1003,13 @@ TOKEN instarray(TOKEN bounds, TOKEN typetok){
   SYMBOL array = makesym("array");
   array->kind = ARRAYSYM;
   array->datatype = typetok->symtype;
+  printdebug("instarray() 2 \n");
   array->highbound = bounds->symtype->highbound;
   array->lowbound = bounds->symtype->lowbound;
   int size = array->datatype->size * (array->highbound - array->lowbound + 1);
   array->size = size;
   TOKEN second_array;
+  printdebug("instarray() 3 \n");
   if(bounds->link){
     int high = bounds->link->symtype->datatype->highbound;
     int low = bounds->link->symtype->datatype->lowbound;
@@ -1016,6 +1018,7 @@ TOKEN instarray(TOKEN bounds, TOKEN typetok){
     array->datatype = second_array->symtype;
     array->size = array->datatype->size * (array->highbound - array->lowbound + 1);
   }
+  printdebug("instarray() 4 \n");
   typetok->symtype = array;
   printdebug("instarray() ends \n\n");
   return typetok;

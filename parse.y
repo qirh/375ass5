@@ -1014,18 +1014,18 @@ TOKEN instarray(TOKEN bounds, TOKEN typetok){
   TOKEN second_array;
   printdebug("instarray() 3 \n");
   if(bounds) {
-    printdebug("instarray() a \n");
+    printdebug("instarray() 4 \n");
     dbprsymbol(bounds->symtype);
     int high = bounds->symtype->datatype->highbound;
-    printdebug("instarray() b \n");
-    int low = bounds->symtype->datatype->lowbound;
-    printdebug("instarray() 4 \n");
-    TOKEN subrange = makesubrange(copytok(typetok), low, high);
     printdebug("instarray() 5 \n");
-    second_array = instarray(subrange, typetok);
+    int low = bounds->symtype->datatype->lowbound;
     printdebug("instarray() 6 \n");
-    array->datatype = second_array->symtype;
+    TOKEN subrange = makesubrange(copytok(typetok), low, high);
     printdebug("instarray() 7 \n");
+    second_array = instarray(subrange, typetok);
+    printdebug("instarray() 8 \n");
+    array->datatype = second_array->symtype;
+    printdebug("instarray() 9 \n");
     array->size = array->datatype->size * (array->highbound - array->lowbound + 1);
   }
   if(bounds->link->symtype) {
@@ -1034,16 +1034,16 @@ TOKEN instarray(TOKEN bounds, TOKEN typetok){
     int high = bounds->link->symtype->datatype->highbound;
     printdebug("instarray() b \n");
     int low = bounds->link->symtype->datatype->lowbound;
-    printdebug("instarray() 4 \n");
+    printdebug("instarray() c \n");
     TOKEN subrange = makesubrange(copytok(typetok), low, high);
-    printdebug("instarray() 5 \n");
+    printdebug("instarray() d \n");
     second_array = instarray(subrange, typetok);
-    printdebug("instarray() 6 \n");
+    printdebug("instarray() e \n");
     array->datatype = second_array->symtype;
-    printdebug("instarray() 7 \n");
+    printdebug("instarray() f \n");
     array->size = array->datatype->size * (array->highbound - array->lowbound + 1);
   }
-  printdebug("instarray() 8 \n");
+  printdebug("instarray() g \n");
   typetok->symtype = array;
   printdebug("instarray() ends \n\n");
   return typetok;

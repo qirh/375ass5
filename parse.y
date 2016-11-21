@@ -1013,12 +1013,27 @@ TOKEN instarray(TOKEN bounds, TOKEN typetok){
   array->size = size;
   TOKEN second_array;
   printdebug("instarray() 3 \n");
-  if(bounds){
+  if(bounds) {
     printdebug("instarray() a \n");
     dbprsymbol(bounds->symtype);
     int high = bounds->symtype->datatype->highbound;
     printdebug("instarray() b \n");
     int low = bounds->symtype->datatype->lowbound;
+    printdebug("instarray() 4 \n");
+    TOKEN subrange = makesubrange(copytok(typetok), low, high);
+    printdebug("instarray() 5 \n");
+    second_array = instarray(subrange, typetok);
+    printdebug("instarray() 6 \n");
+    array->datatype = second_array->symtype;
+    printdebug("instarray() 7 \n");
+    array->size = array->datatype->size * (array->highbound - array->lowbound + 1);
+  }
+  if(bounds->link->symtype) {
+    printdebug("instarray() a \n");
+    dbprsymbol(bounds->link->symtype);
+    int high = bounds->link->symtype->datatype->highbound;
+    printdebug("instarray() b \n");
+    int low = bounds->link->symtype->datatype->lowbound;
     printdebug("instarray() 4 \n");
     TOKEN subrange = makesubrange(copytok(typetok), low, high);
     printdebug("instarray() 5 \n");

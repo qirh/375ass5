@@ -965,7 +965,7 @@ TOKEN makesubrange(TOKEN tok, int low, int high){
   subrange->size = basicsizes[INTEGER];
   tok->symtype = subrange;
   tok->tokentype = NUMBERTOK;
-  
+  insertsym(subrange);
   printdebug("makesubrange() ends \n\n");
   return tok;
 

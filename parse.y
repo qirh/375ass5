@@ -1013,7 +1013,7 @@ TOKEN instarray(TOKEN bounds, TOKEN typetok){
   array->size = size;
   TOKEN second_array;
   printdebug("instarray() 3 \n");
-  if(bounds->link){
+  if(bounds){
     printdebug("instarray() a \n");
     dbprsymbol(bounds->symtype);
     int high = bounds->symtype->datatype->highbound;

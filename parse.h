@@ -195,6 +195,8 @@ TOKEN instarray(TOKEN bounds, TOKEN typetok);
 /* talloc allocates a new TOKEN record. */
 TOKEN talloc();
 
+
+//mine
 void printdeubg(char arr[]);
 SYMBOL skiptype(SYMBOL sym);
 TOKEN createtok(int what, int which);

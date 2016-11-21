@@ -965,8 +965,8 @@ TOKEN makesubrange(TOKEN tok, int low, int high){
   subrange->size = basicsizes[INTEGER];
   tok->symtype = subrange;
   tok->tokentype = NUMBERTOK;
-  dbugprinttok(tok);
-  insertsym(subrange);
+  //dbugprinttok(tok);
+  //insertsym(subrange);
   printdebug("makesubrange() ends \n\n");
   return tok;
 
@@ -1001,6 +1001,7 @@ void  instlabel (TOKEN num) {
 TOKEN instarray(TOKEN bounds, TOKEN typetok){
 
   printdebug("instarray() \n");
+  dbugprinttok(bounds);
   SYMBOL array = makesym("array");
   array->kind = ARRAYSYM;
   array->datatype = typetok->symtype;

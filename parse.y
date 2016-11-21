@@ -807,31 +807,31 @@ TOKEN createtok(int what, int which) {
 }
 TOKEN instrec(TOKEN rectok, TOKEN argstok) {
   printdebug("instrec() \n");
-  printdebug("1 \n");
+  
   SYMBOL tmptab[50];
   TOKEN tmp = argstok;
-  printdebug("2 \n");
+  
   while(tmp) {
     printf("%s: %s, ", tmp->stringval, tmp->symtype->namestring);
     tmp = tmp->link;
   }
   printf("\n");
-  printdebug("3 \n");
+  
   SYMBOL tmptable[50];              
   SYMBOL record = makesym("");
   record->kind = RECORDSYM;
   int size = 0;
-  printdebug("4 \n");
+  
   SYMBOL sym, typesym; 
   int align;
-  printdebug("5 \n");
+  
   tmp = argstok;
   SYMBOL first;
   typesym = tmp->symtype;
   align = alignsize(typesym);
-  printdebug("6 \n");
+  
   int index = 0;
-  printdebug("7 \n");
+  
   while(tmp) {
     sym = makesym(tmp->stringval);
     if(index == 0)
@@ -846,18 +846,18 @@ TOKEN instrec(TOKEN rectok, TOKEN argstok) {
     size += tmp->symtype->size;
     tmptab[index] = sym;    
     tmp = tmp->link;
-    printdebug("8 \n");
+  
     index++;
   }
-  printdebug("9 \n");
+  
   int i = 0;
   for(; i < index - 1; i++){
     tmptab[i]->link = tmptab[i+1];
   }
-  printdebug("A \n");
+  
   record->datatype = first;
   record->size = size;
-  printdebug("B \n");
+  
   rectok->symtype = record;     
   printdebug("instrec() ends \n\n");
   return rectok;

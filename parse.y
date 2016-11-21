@@ -134,6 +134,7 @@ TOKEN parseresult;
             ;
   tdef_list : tdef SEMICOLON tdef_list                  { printdebug("1 tdef_list\n"); }
             | tdef                                      { printdebug("2 tdef_list\n"); }
+            | tdef SEMICOLON                            { printdebug("2 tdef_list\n"); }
             ;
   tblock    : TYPE tdef_list vblock                     { printdebug("1 tblock\n"); $$ = $3; }
             | vblock                                    { printdebug("2 tblock\n"); }
@@ -637,7 +638,8 @@ TOKEN findtype(TOKEN tok) {
   *
 */
 
-TOKEN nconc(TOKEN lista, TOKEN listb){
+TOKEN nconc(TOKEN lista, TOKEN listb) {
+  
   printdebug("nconc() \n");
   TOKEN tmp = lista;
   while( tmp->link )
@@ -648,6 +650,7 @@ TOKEN nconc(TOKEN lista, TOKEN listb){
   
 }
 TOKEN makewhile(TOKEN tok, TOKEN expr, TOKEN tokb, TOKEN statement) {
+  
   printdebug("makewhile() \n");
   TOKEN labeltok = talloc();
   labeltok->tokentype = OPERATOR;
@@ -688,9 +691,7 @@ TOKEN reducedot(TOKEN var, TOKEN dot, TOKEN field) {
   printdebug("reducedot() \n");
   SYMBOL record = var->symtype;
   bool ispointer = false;
-  // if(var->link != NULL)
 
-  /* Skip to the pointer's RECORDSYM symbol */
   if(record->kind == POINTERSYM) {
     record = record->datatype;
     record = skiptype(record);
@@ -699,35 +700,29 @@ TOKEN reducedot(TOKEN var, TOKEN dot, TOKEN field) {
   int oldOffset = 0;
   bool reuse = false;
 
-  /* OPTIMIZATION : Combine aref's whose offsets are constant numbers */
+
   if(!ispointer && var->tokentype == OPERATOR && var->whichval == AREFOP && var->operands->link->tokentype == NUMBERTOK) {
     dot = var;
     oldOffset = var->operands->link->intval;
     reuse = true;
   }
 
-  else {
+  else
     dot = createtok(OPERATOR,AREFOP);
-  }
 
-  /* Move to the first record entry */
   record = record->datatype;
-  // printf("Reduce Dot %s\n", record->namestring);
 
-  while(record != NULL && strcmp(field->stringval, record->namestring)) {
+  while(record != NULL && strcmp(field->stringval, record->namestring))
     record = record->link;
-  }
 
   dot->datatype = record->basicdt;
   int offset = record->offset + oldOffset;
 
-  if(!ispointer && offset == 0) {
+  if(!ispointer && offset == 0)
     return var;
-  }
 
-  if(!reuse) {
+  if(!reuse)
     dot->operands = var;
-  }
 
   dot->operands->link = makeintc(offset);
 

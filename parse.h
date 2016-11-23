@@ -198,5 +198,7 @@ TOKEN talloc();
 
 //mine
 void printdeubg(char arr[]);
-SYMBOL skiptype(SYMBOL sym);
+TOKEN convertnil(TOKEN nil);
 TOKEN createtok(int what, int which);
+SYMBOL stype(SYMBOL sym);
+SYMBOL instarrayhelper(TOKEN simpletypes, TOKEN typetok);

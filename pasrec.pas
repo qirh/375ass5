@@ -12,7 +12,7 @@ type complex = record re, im: real end;
                      salary:   real end;
 var c,d: complex; i, sum: integer;
     ac: array[1..10] of complex;
-    {aco: array[1..10, color] of color;}
+    aco: array[1..10, color] of color;
     john, mary, fred, ptr: pp;
     people: array[1..20] of person;
 begin
@@ -39,7 +39,7 @@ begin
      begin
 	sum := sum + ptr^.age;
 	people[i].age := ptr^.age;
-	{aco[i,white] := john^.favorite;}
+	aco[i,white] := john^.favorite;
 	ptr := ptr^.friend;
 	i := i + 1
      end;
